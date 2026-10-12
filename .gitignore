@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+# 個人設定（言語など）
+config.py

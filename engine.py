@@ -2,7 +2,7 @@ import time
 from tkinter import messagebox
 from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Controller as KeyboardController, Key
-from config import KEY_MAP
+from key_map import KEY_MAP
 from i18n import t
 
 mouse = MouseController()

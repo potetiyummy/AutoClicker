@@ -1,8 +1,5 @@
 from pynput.keyboard import Key
 
-# 表示言語: "ja-JP" / "en-US"。None の場合は Windows の表示言語から自動判定（GUIで選ぶと自動で書き換わる）
-LANGUAGE = "ja-JP"
-
 # 特殊キーの文字列マッピング（大文字小文字の揺れを防ぐためすべて小文字で定義）
 KEY_MAP = {
     # 修飾キー・基本特殊キー
@@ -17,7 +14,7 @@ KEY_MAP = {
     "{ralt}": Key.alt_r,
     "{win}": Key.cmd,           # Windowsキーに対応
     "{fn}": "fn",               # 環境依存キー（ハードウェア制御のため文字列として保持）
-    
+
     # 操作系キー
     "{enter}": Key.enter,
     "{space}": Key.space,
@@ -26,13 +23,13 @@ KEY_MAP = {
     "{delete}": Key.delete,
     "{backspace}": Key.backspace,
     "{prtsc}": Key.print_screen, # プリントスクリーンに対応
-    
+
     # 矢印キー
     "{left}": Key.left,
     "{right}": Key.right,
     "{up}": Key.up,
     "{down}": Key.down,
-    
+
     # ファンクションキー (F1 〜 F12)
     "{f1}": Key.f1,   "{f2}": Key.f2,   "{f3}": Key.f3,   "{f4}": Key.f4,
     "{f5}": Key.f5,   "{f6}": Key.f6,   "{f7}": Key.f7,   "{f8}": Key.f8,

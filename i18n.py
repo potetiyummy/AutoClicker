@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import config
 
 DEFAULT_LANG = "en-US"
 SUPPORTED_LANGS = ("ja-JP", "en-US")
@@ -39,8 +38,17 @@ def _load_table(lang):
 
 CONFIG_PATH = os.path.join(_base_dir(), "config.py")
 
+def _saved_language():
+    """config.py に保存された言語。ファイルが無い場合（クローン直後など）は None"""
+    try:
+        import config
+        return getattr(config, "LANGUAGE", None)
+    except ImportError:
+        return None
+
 # config.py に保存された言語を優先し、未設定・不正な値の場合は Windows の表示言語を使う
-LANG = config.LANGUAGE if config.LANGUAGE in SUPPORTED_LANGS else _detect_lang()
+_saved = _saved_language()
+LANG = _saved if _saved in SUPPORTED_LANGS else _detect_lang()
 _TABLE = _load_table(LANG)
 _FALLBACK = _load_table(DEFAULT_LANG)
 
@@ -57,15 +65,16 @@ def set_language(lang):
 
 def save_language(lang):
     """選択された言語を config.py の LANGUAGE に書き込んで保存する"""
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        text = f.read()
+    text = ""
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            text = f.read()
     line = f'LANGUAGE = "{lang}"'
     new_text, count = re.subn(r'^LANGUAGE = .*$', line, text, count=1, flags=re.MULTILINE)
     if count == 0:
-        new_text = text.rstrip("\n") + "\n" + line + "\n"
+        new_text = (text.rstrip("\n") + "\n" if text else "") + line + "\n"
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         f.write(new_text)
-    config.LANGUAGE = lang
 
 def seg_key(text, keys):
     """CTkSegmentedButton で選択中の表示文字列から内部キーを返す"""
