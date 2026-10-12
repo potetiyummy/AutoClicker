@@ -3,9 +3,15 @@ import re
 import sys
 
 DEFAULT_LANG = "en-US"
-SUPPORTED_LANGS = ("ja-JP", "en-US")
+SUPPORTED_LANGS = ("ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW")
 # メニューに表示する言語名（各言語の表記のまま。翻訳しない）
-LANGUAGE_NAMES = {"日本語": "ja-JP", "English": "en-US"}
+LANGUAGE_NAMES = {
+    "日本語": "ja-JP",
+    "English": "en-US",
+    "한국어": "ko-KR",
+    "简体中文": "zh-CN",
+    "繁體中文": "zh-TW",
+}
 
 def _base_dir():
     if getattr(sys, 'frozen', False):
@@ -13,11 +19,17 @@ def _base_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 def _detect_lang():
-    """Windowsの表示言語が日本語なら ja-JP、それ以外は en-US を使う"""
+    """Windowsの表示言語から対応言語を選ぶ。対応外の言語は en-US を使う"""
     try:
         import ctypes
-        if (ctypes.windll.kernel32.GetUserDefaultUILanguage() & 0x3FF) == 0x11:
+        langid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+        primary, sub = langid & 0x3FF, langid >> 10
+        if primary == 0x11:   # 日本語
             return "ja-JP"
+        if primary == 0x12:   # 韓国語
+            return "ko-KR"
+        if primary == 0x04:   # 中国語: 簡体字(2)・シンガポール(4) は zh-CN、それ以外は繁体字
+            return "zh-CN" if sub in (2, 4) else "zh-TW"
     except Exception:
         pass
     return DEFAULT_LANG
