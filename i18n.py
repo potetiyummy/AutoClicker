@@ -4,6 +4,8 @@ import sys
 
 DEFAULT_LANG = "en-US"
 SUPPORTED_LANGS = ("ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW")
+# 言語メニューで「システムの規定」を表す値（config.py では None として保存する）
+SYSTEM = "system"
 # メニューに表示する言語名（各言語の表記のまま。翻訳しない）
 LANGUAGE_NAMES = {
     "日本語": "ja-JP",
@@ -18,21 +20,23 @@ def _base_dir():
         return sys._MEIPASS
     return os.path.dirname(os.path.abspath(__file__))
 
-def _detect_lang():
-    """Windowsの表示言語から対応言語を選ぶ。対応外の言語は en-US を使う"""
+def system_lang():
+    """Windowsの表示言語に対応する言語コード。対応していない場合は None"""
     try:
         import ctypes
         langid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
         primary, sub = langid & 0x3FF, langid >> 10
         if primary == 0x11:   # 日本語
             return "ja-JP"
+        if primary == 0x09:   # 英語
+            return "en-US"
         if primary == 0x12:   # 韓国語
             return "ko-KR"
         if primary == 0x04:   # 中国語: 簡体字(2)・シンガポール(4) は zh-CN、それ以外は繁体字
             return "zh-CN" if sub in (2, 4) else "zh-TW"
     except Exception:
         pass
-    return DEFAULT_LANG
+    return None
 
 def _load_table(lang):
     """languages/<lang>.lang を読み込む（形式: key=値）"""
@@ -58,15 +62,25 @@ def _saved_language():
     except ImportError:
         return None
 
-# config.py に保存された言語を優先し、未設定・不正な値の場合は Windows の表示言語を使う
-_saved = _saved_language()
-LANG = _saved if _saved in SUPPORTED_LANGS else _detect_lang()
-_TABLE = _load_table(LANG)
 _FALLBACK = _load_table(DEFAULT_LANG)
+_tables = {}
+
+# config.py に言語が保存されていればそれを使い、未設定・不正な値の場合はシステムの規定を使う
+_saved = _saved_language()
+SYSTEM_MODE = _saved not in SUPPORTED_LANGS
+LANG = (system_lang() or DEFAULT_LANG) if SYSTEM_MODE else _saved
+_TABLE = _load_table(LANG)
 
 def t(key, **kwargs):
     """キーに対応する文言を返す。無い場合は英語版、それも無ければキー名を返す"""
     text = _TABLE.get(key) or _FALLBACK.get(key) or key
+    return text.format(**kwargs) if kwargs else text
+
+def t_in(lang, key, **kwargs):
+    """指定した言語で文言を返す（現在の表示言語とは無関係に使う）"""
+    if lang not in _tables:
+        _tables[lang] = _load_table(lang)
+    text = _tables[lang].get(key) or _FALLBACK.get(key) or key
     return text.format(**kwargs) if kwargs else text
 
 def set_language(lang):
@@ -76,17 +90,33 @@ def set_language(lang):
     _TABLE = _load_table(lang)
 
 def save_language(lang):
-    """選択された言語を config.py の LANGUAGE に書き込んで保存する"""
+    """選択された言語を config.py の LANGUAGE に書き込む（None はシステムの規定）"""
     text = ""
     if os.path.exists(CONFIG_PATH):
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             text = f.read()
-    line = f'LANGUAGE = "{lang}"'
+    line = "LANGUAGE = None" if lang is None else f'LANGUAGE = "{lang}"'
     new_text, count = re.subn(r'^LANGUAGE = .*$', line, text, count=1, flags=re.MULTILINE)
     if count == 0:
         new_text = (text.rstrip("\n") + "\n" if text else "") + line + "\n"
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         f.write(new_text)
+
+def apply_language(choice):
+    """言語を設定して保存する。choice は言語コードか SYSTEM"""
+    global SYSTEM_MODE
+    if choice == SYSTEM:
+        SYSTEM_MODE = True
+        save_language(None)
+        set_language(system_lang() or DEFAULT_LANG)
+    else:
+        SYSTEM_MODE = False
+        save_language(choice)
+        set_language(choice)
+
+def language_options():
+    """言語メニューの項目 [(表示名, 言語コード)]。先頭はシステムの規定"""
+    return [(t("system_default"), SYSTEM)] + list(LANGUAGE_NAMES.items())
 
 def seg_key(text, keys):
     """CTkSegmentedButton で選択中の表示文字列から内部キーを返す"""

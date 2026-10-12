@@ -4,7 +4,8 @@ import tkinter as tk
 import ctypes
 import customtkinter as ctk
 import i18n
-from i18n import t, seg_key, KEYBOARD_MODES, LANGUAGE_NAMES
+from i18n import t, seg_key, KEYBOARD_MODES
+from .dialogs import ask_unsupported_system
 
 from .tabs import create_click_tab, DragTabManager, create_hold_tab, KeyboardTabManager, create_wait_tab
 from .gui_io import FileManager
@@ -20,7 +21,7 @@ class AutoClickerApp(ctk.CTk):
     def __init__(self, engine):
         super().__init__()
         self.engine = engine
-        self.title("Auto Clicker v1.7")
+        self.title("Auto Clicker v1.7.2")
         
         # ウィンドウ用アイコン自動絶対パス指定
         icon_name = "app_icon.ico"
@@ -50,10 +51,11 @@ class AutoClickerApp(ctk.CTk):
         
         self.setup_ui()
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.after(200, self.prompt_unsupported_at_start)
 
     def setup_ui(self):
-        self.lang_menu = ctk.CTkOptionMenu(self, values=list(LANGUAGE_NAMES.keys()), width=120, command=self.on_language_changed)
-        self.lang_menu.set(next(name for name, code in LANGUAGE_NAMES.items() if code == i18n.LANG))
+        self.lang_menu = ctk.CTkOptionMenu(self, values=[label for label, _ in i18n.language_options()], width=160, command=self.on_language_changed)
+        self.lang_menu.set(self.current_menu_label())
         self.lang_menu.pack(anchor="ne", padx=20, pady=(10, 0))
 
         self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -125,13 +127,29 @@ class AutoClickerApp(ctk.CTk):
             self.status_label.configure(text=t("status_stopped"))
             self.start_btn.configure(text=t("run"))
 
+    def current_menu_label(self):
+        code = i18n.SYSTEM if i18n.SYSTEM_MODE else i18n.LANG
+        return next(label for label, c in i18n.language_options() if c == code)
+
+    def prompt_unsupported_at_start(self):
+        # システムの規定が対応外の場合は、英語で続けるかを確認する
+        if i18n.SYSTEM_MODE and i18n.system_lang() is None:
+            if ask_unsupported_system(self, i18n.LANG):
+                i18n.apply_language("en-US")
+                self.rebuild_ui()
+
     def on_language_changed(self, name):
-        code = LANGUAGE_NAMES[name]
-        if code == i18n.LANG:
+        if name == self.current_menu_label():
             return
+        choice = dict(i18n.language_options())[name]
+        if choice == i18n.SYSTEM and i18n.system_lang() is None:
+            # 変更前の言語で確認する。「他の言語に変更する」なら元の選択に戻す
+            if not ask_unsupported_system(self, i18n.LANG):
+                self.lang_menu.set(self.current_menu_label())
+                return
+            choice = "en-US"
         # 選んだ言語は即座に config.py へ保存し、画面を新しい言語で組み直す
-        i18n.save_language(code)
-        i18n.set_language(code)
+        i18n.apply_language(choice)
         self.rebuild_ui()
 
     def rebuild_ui(self):
