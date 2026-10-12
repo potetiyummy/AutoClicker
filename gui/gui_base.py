@@ -116,6 +116,15 @@ class AutoClickerApp(ctk.CTk):
     def get_start_btn_master(self):
         return self.left_frame
 
+    def update_status(self, active):
+        # エンジンの実行/停止に合わせてステータス表示と実行ボタンの文言を切り替える
+        if active:
+            self.status_label.configure(text=t("status_running"))
+            self.start_btn.configure(text=t("stop"))
+        else:
+            self.status_label.configure(text=t("status_stopped"))
+            self.start_btn.configure(text=t("run"))
+
     def on_language_changed(self, name):
         code = LANGUAGE_NAMES[name]
         if code == i18n.LANG:
