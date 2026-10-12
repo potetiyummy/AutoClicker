@@ -104,7 +104,11 @@ class MacroListCanvas(ctk.CTkFrame):
             text = tr("list_drag", index=index+1, btn=tr(action["btn"]), sx=action['sx'], count=wp_count, ex=action['ex'])
         elif t == "hold":
             img_key = "right" if "right" in action["btn"] else "left"
-            text = tr("list_hold", index=index+1, btn=tr(action["btn"]), x=action['x'], y=action['y'], duration=action['duration'])
+            wp_count = len(action.get("waypoints") or [])
+            if wp_count:
+                text = tr("list_hold_via", index=index+1, btn=tr(action["btn"]), x=action['x'], y=action['y'], count=wp_count, duration=action['duration'])
+            else:
+                text = tr("list_hold", index=index+1, btn=tr(action["btn"]), x=action['x'], y=action['y'], duration=action['duration'])
         elif t == "keyboard":
             img_key = "text" if action["mode"] == "text" else "hotkey"
             text = tr("list_keyboard", index=index+1, kind=tr("keyboard"), mode=tr(action["mode"]), value=action['value'])

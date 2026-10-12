@@ -21,7 +21,7 @@ class AutoClickerApp(ctk.CTk):
     def __init__(self, engine):
         super().__init__()
         self.engine = engine
-        self.title("Auto Clicker v1.7.2")
+        self.title("Auto Clicker v1.9")
         
         # ウィンドウ用アイコン自動絶対パス指定
         icon_name = "app_icon.ico"
@@ -43,6 +43,7 @@ class AutoClickerApp(ctk.CTk):
         
         # 各サブモジュールと共有するデータ変数
         self.current_waypoints = []
+        self.hold_waypoints = []
         self.drag_start_coord = [0, 0]
         self.drag_end_coord = [100, 100]
         
@@ -196,6 +197,21 @@ class AutoClickerApp(ctk.CTk):
     def clear_waypoints(self):
         self.current_waypoints.clear()
         self.update_waypoint_display()
+
+    def add_hold_waypoint_to_list(self):
+        try:
+            x = int(self.hw_x.get() or 0)
+            y = int(self.hw_y.get() or 0)
+            self.hold_waypoints.append([x, y])
+            self.update_hold_waypoint_display()
+        except ValueError: pass
+
+    def clear_hold_waypoints(self):
+        self.hold_waypoints.clear()
+        self.update_hold_waypoint_display()
+
+    def update_hold_waypoint_display(self):
+        self.hold_list.draw()
 
     def update_waypoint_display(self):
         self.way_listbox.configure(state="normal")

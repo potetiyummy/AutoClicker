@@ -12,7 +12,7 @@ class ActionEventHandler:
         self.countdown(3, tab_type)
 
     def countdown(self, count, tab_type):
-        btn = {"click": self.app.c_pick_btn, "drag": self.app.d_pick_btn, "hold": self.app.h_pick_btn}.get(tab_type)
+        btn = {"click": self.app.c_pick_btn, "drag": self.app.d_pick_btn, "hold": self.app.h_pick_btn, "hold_via": self.app.hw_pick_btn}.get(tab_type)
         if count > 0:
             if btn: btn.configure(text=t("countdown", count=count), fg_color="#A80000")
             self.app.after(1000, lambda: self.countdown(count - 1, tab_type))
@@ -25,6 +25,9 @@ class ActionEventHandler:
             elif tab_type == "hold":
                 self.app.h_x.delete(0, "end"); self.app.h_x.insert(0, str(x))
                 self.app.h_y.delete(0, "end"); self.app.h_y.insert(0, str(y))
+            elif tab_type == "hold_via":
+                self.app.hw_x.delete(0, "end"); self.app.hw_x.insert(0, str(x))
+                self.app.hw_y.delete(0, "end"); self.app.hw_y.insert(0, str(y))
             elif tab_type == "drag":
                 self.app.d_x.delete(0, "end"); self.app.d_x.insert(0, str(x))
                 self.app.d_y.delete(0, "end"); self.app.d_y.insert(0, str(y))
@@ -50,7 +53,7 @@ class ActionEventHandler:
         self.app.refresh_list()
 
     def add_hold(self):
-        self.app.engine.actions.append({"type": "hold", "btn": seg_key(self.app.h_btn.get(), HOLD_BUTTONS), "x": int(self.app.h_x.get() or 0), "y": int(self.app.h_y.get() or 0), "duration": int(self.app.h_dur.get() or 1000)})
+        self.app.engine.actions.append({"type": "hold", "btn": seg_key(self.app.h_btn.get(), HOLD_BUTTONS), "x": int(self.app.h_x.get() or 0), "y": int(self.app.h_y.get() or 0), "duration": int(self.app.h_dur.get() or 1000), "waypoints": list(self.app.hold_waypoints)})
         self.app.refresh_list()
 
     def add_kb(self):

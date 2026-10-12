@@ -35,11 +35,15 @@ class MacroEngine:
         for act in self.actions:
             t = act["type"]
             
-            # 1. クリック、長押しの座標チェック
+            # 1. クリック、長押しの座標チェック（長押しは経由地も確認）
             if t in ["click", "hold"]:
                 if not self.is_valid_coordinate(act["x"], act["y"]):
                     return False
-                    
+                if t == "hold":
+                    for wp in act.get("waypoints") or []:
+                        if not self.is_valid_coordinate(wp[0], wp[1]):
+                            return False
+
             # 2. ドラッグ（始点、終点、すべての経由地）の座標チェック
             elif t == "drag":
                 # 始点と終点のチェック
@@ -131,7 +135,14 @@ class MacroEngine:
                         mouse.position = (act["x"], act["y"])
                         time.sleep(0.05)
                         mouse.press(btn)
-                        time.sleep(act["duration"] / 1000.0)
+                        # 経由地があれば、ボタンを押したまま順に移動する
+                        start_time = time.time()
+                        for wp in act.get("waypoints") or []:
+                            mouse.position = (wp[0], wp[1])
+                            time.sleep(0.1)
+                        # 合計の長押し時間になるまで待ってから離す
+                        remaining = act["duration"] / 1000.0 - (time.time() - start_time)
+                        time.sleep(max(0, remaining))
                         mouse.release(btn)
 
                     elif t == "keyboard":
