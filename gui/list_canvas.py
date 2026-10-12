@@ -1,5 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
+from i18n import t as tr
 
 class MacroListCanvas(ctk.CTkFrame):
     def __init__(self, master, app, engine):
@@ -95,22 +96,22 @@ class MacroListCanvas(ctk.CTkFrame):
         img_key = None
         
         if t == "click":
-            img_key = "right" if "右" in action["btn"] else "left"
-            text = f"{index+1}. [{action['btn']}] 座標({action['x']},{action['y']})"
+            img_key = "right" if "right" in action["btn"] else "left"
+            text = tr("list_click", index=index+1, btn=tr(action["btn"]), x=action['x'], y=action['y'])
         elif t == "drag":
             wp_count = len(action.get("waypoints", []))
             img_key = "drag_via" if wp_count > 0 else "drag_straight"
-            text = f"{index+1}. [{action['btn']}] 始点{action['sx']} -> 経由:{wp_count}箇所 -> 終点{action['ex']}"
+            text = tr("list_drag", index=index+1, btn=tr(action["btn"]), sx=action['sx'], count=wp_count, ex=action['ex'])
         elif t == "hold":
-            img_key = "right" if "右" in action["btn"] else "left"
-            text = f"{index+1}. [{action['btn']}] 長押し({action['x']},{action['y']}) {action['duration']}ms"
+            img_key = "right" if "right" in action["btn"] else "left"
+            text = tr("list_hold", index=index+1, btn=tr(action["btn"]), x=action['x'], y=action['y'], duration=action['duration'])
         elif t == "keyboard":
-            img_key = "text" if action["mode"] == "入力モード" else "hotkey"
-            text = f"{index+1}. [キーボード] {action['mode']}:{action['value']}"
+            img_key = "text" if action["mode"] == "text" else "hotkey"
+            text = tr("list_keyboard", index=index+1, kind=tr("keyboard"), mode=tr(action["mode"]), value=action['value'])
         # 【修正】待機アクション時に、新しく追加された "wait" キーの画像をセット
         elif t == "wait":
             img_key = "wait"
-            text = f"{index+1}. [待機] {action['duration']}ms"
+            text = tr("list_wait", index=index+1, kind=tr("wait"), duration=action['duration'])
         
         self.canvas.create_rectangle(5, y + 2, width - 5, y + self.item_height - 2, fill=bg_color, outline=outline_color, width=1)
         

@@ -1,5 +1,8 @@
 from pynput.keyboard import Key
 
+# 表示言語: "ja-JP" / "en-US"。None の場合は Windows の表示言語から自動判定（GUIで選ぶと自動で書き換わる）
+LANGUAGE = "ja-JP"
+
 # 特殊キーの文字列マッピング（大文字小文字の揺れを防ぐためすべて小文字で定義）
 KEY_MAP = {
     # 修飾キー・基本特殊キー

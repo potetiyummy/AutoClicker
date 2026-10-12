@@ -3,6 +3,7 @@ from tkinter import messagebox
 from pynput.mouse import Button, Controller as MouseController
 from pynput.keyboard import Controller as KeyboardController, Key
 from config import KEY_MAP
+from i18n import t
 
 mouse = MouseController()
 keyboard = KeyboardController()
@@ -57,7 +58,7 @@ class MacroEngine:
         if not self.actions:
             self.active = False
             if self.ui: self.ui.update_status(False)
-            messagebox.showinfo("お知らせ", "アクションリストにアクションが入っていません.")
+            messagebox.showinfo(t("notice"), t("no_actions"))
             return
 
         # 2. 【追加】無効な画面外座標が含まれている場合のガード処理
@@ -65,7 +66,7 @@ class MacroEngine:
             self.active = False
             if self.ui: self.ui.update_status(False)
             # エラーモード(showerror)で指定された通りのエラー文を表示
-            messagebox.showerror("エラー", "エラー : 無効な座標が指定されています。")
+            messagebox.showerror(t("error"), t("invalid_coord"))
             return
 
         # すべての安全チェックを通過したら通常通り実行開始
@@ -104,13 +105,13 @@ class MacroEngine:
                     t = act["type"]
                     
                     if t == "click":
-                        btn = Button.right if "右" in act["btn"] else Button.left
+                        btn = Button.right if "right" in act["btn"] else Button.left
                         mouse.position = (act["x"], act["y"])
                         time.sleep(0.05)
                         mouse.click(btn, 1)
 
                     elif t == "drag":
-                        btn = Button.right if "右" in act["btn"] else Button.left
+                        btn = Button.right if "right" in act["btn"] else Button.left
                         mouse.position = (act["sx"], act["sy"])
                         time.sleep(0.05)
                         mouse.press(btn)
@@ -126,7 +127,7 @@ class MacroEngine:
                         mouse.release(btn)
 
                     elif t == "hold":
-                        btn = Button.right if "右" in act["btn"] else Button.left
+                        btn = Button.right if "right" in act["btn"] else Button.left
                         mouse.position = (act["x"], act["y"])
                         time.sleep(0.05)
                         mouse.press(btn)
@@ -134,7 +135,7 @@ class MacroEngine:
                         mouse.release(btn)
 
                     elif t == "keyboard":
-                        if act["mode"] == "入力モード":
+                        if act["mode"] == "text":
                             keyboard.type(act["value"])
                         else:
                             try:
