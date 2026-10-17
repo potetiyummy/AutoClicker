@@ -12,12 +12,12 @@ static class Strings
     public const string DefaultLang = "en-US";
     public const string SystemValue = "system";
 
-    public static readonly string[] SupportedLangs = { "ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "it-IT", "nl-NL", "pl-PL", "ar-SA", "hi-IN", "id-ID", "tr-TR", "vi-VN", "th-TH", "ms-MY", "sv-SE", "da-DK", "nb-NO", "fi-FI", "cs-CZ", "hu-HU", "el-GR", "uk-UA", "ro-RO", "ja-HR" };
+    public static readonly string[] SupportedLangs = { "ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "it-IT", "nl-NL", "pl-PL", "ar-SA", "hi-IN", "id-ID", "tr-TR", "vi-VN", "th-TH", "ms-MY", "sv-SE", "da-DK", "nb-NO", "fi-FI", "cs-CZ", "hu-HU", "el-GR", "uk-UA", "ro-RO", "ja-HR", "ja-KS" };
 
     // メニューに表示する言語名（各言語の表記のまま）
     static readonly (string Label, string Code)[] LanguageNames =
     {
-        ("日本語", "ja-JP"), ("にほんご", "ja-HR"), ("English", "en-US"), ("한국어", "ko-KR"), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"),
+        ("日本語", "ja-JP"), ("にほんご", "ja-HR"), ("日本語（関西弁）", "ja-KS"), ("English", "en-US"), ("한국어", "ko-KR"), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"),
         ("Español", "es-ES"), ("Deutsch", "de-DE"), ("Français", "fr-FR"), ("Português", "pt-BR"), ("Русский", "ru-RU"),
         ("Italiano", "it-IT"), ("Nederlands", "nl-NL"), ("Polski", "pl-PL"), ("العربية", "ar-SA"), ("हिन्दी", "hi-IN"),
         ("Bahasa Indonesia", "id-ID"), ("Türkçe", "tr-TR"), ("Tiếng Việt", "vi-VN"), ("ไทย", "th-TH"), ("Bahasa Melayu", "ms-MY"),
