@@ -75,3 +75,7 @@ dark_mode=深色模式
 close=关闭
 scroll_speed=滚动速度
 preview_text=在喜爱的咖啡馆里，一边享用美味的咖啡和蛋糕，一边度过令人期待的特别时光。
+accent_color=强调色
+accent_system=系统默认
+accent_custom=自定义
+accent_pick=选择颜色

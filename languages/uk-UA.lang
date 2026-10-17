@@ -75,3 +75,7 @@ dark_mode=Темна тема
 close=Закрити
 scroll_speed=Швидкість прокрутки
 preview_text=Блакитне небо і білі хмари, тихий шум хвиль розливається навколо.
+accent_color=Колір акценту
+accent_system=Системний
+accent_custom=Користувацький
+accent_pick=Вибрати колір

@@ -75,3 +75,7 @@ dark_mode=الوضع الداكن
 close=إغلاق
 scroll_speed=سرعة التمرير
 preview_text=سماء زرقاء وغيوم بيضاء، وصوت أمواج هادئ ينتشر في الأرجاء.
+accent_color=لون التمييز
+accent_system=افتراضي النظام
+accent_custom=مخصص
+accent_pick=اختيار اللون

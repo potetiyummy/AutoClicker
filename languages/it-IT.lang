@@ -75,3 +75,7 @@ dark_mode=Modalità scura
 close=Chiudi
 scroll_speed=Velocità di scorrimento
 preview_text=Cielo azzurro e nuvole bianche, si diffonde il dolce suono delle onde.
+accent_color=Colore di accento
+accent_system=Predefinito di sistema
+accent_custom=Personalizzato
+accent_pick=Scegli colore

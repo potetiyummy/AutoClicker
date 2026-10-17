@@ -75,3 +75,7 @@ dark_mode=Mörkt läge
 close=Stäng
 scroll_speed=Rullningshastighet
 preview_text=Blå himmel och vita moln, det stilla vågbruset sprider sig.
+accent_color=Accentfärg
+accent_system=Systemstandard
+accent_custom=Anpassad
+accent_pick=Välj färg

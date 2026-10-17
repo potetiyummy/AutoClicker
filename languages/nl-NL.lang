@@ -75,3 +75,7 @@ dark_mode=Donkere modus
 close=Sluiten
 scroll_speed=Scrolsnelheid
 preview_text=Blauwe lucht en witte wolken, het rustige geluid van golven verspreidt zich.
+accent_color=Accentkleur
+accent_system=Systeemstandaard
+accent_custom=Aangepast
+accent_pick=Kleur kiezen

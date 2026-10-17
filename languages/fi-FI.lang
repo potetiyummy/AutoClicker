@@ -75,3 +75,7 @@ dark_mode=Tumma tila
 close=Sulje
 scroll_speed=Vierityksen nopeus
 preview_text=Sininen taivas ja valkoiset pilvet, hiljainen aaltojen kohina leviää.
+accent_color=Korostusväri
+accent_system=Järjestelmän oletus
+accent_custom=Mukautettu
+accent_pick=Valitse väri

@@ -75,3 +75,7 @@ dark_mode=Chế độ tối
 close=Đóng
 scroll_speed=Tốc độ cuộn
 preview_text=Bầu trời xanh và mây trắng, tiếng sóng nhẹ nhàng lan tỏa.
+accent_color=Màu nhấn
+accent_system=Mặc định hệ thống
+accent_custom=Tùy chỉnh
+accent_pick=Chọn màu

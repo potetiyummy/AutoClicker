@@ -75,3 +75,7 @@ dark_mode=Koyu mod
 close=Kapat
 scroll_speed=Kaydırma hızı
 preview_text=Mavi gökyüzü ve beyaz bulutlar, dalgaların sakin sesi yayılıyor.
+accent_color=Vurgu rengi
+accent_system=Sistem varsayılanı
+accent_custom=Özel
+accent_pick=Renk seç

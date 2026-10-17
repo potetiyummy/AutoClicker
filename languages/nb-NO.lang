@@ -75,3 +75,7 @@ dark_mode=Mørk modus
 close=Lukk
 scroll_speed=Rullehastighet
 preview_text=Blå himmel og hvite skyer, den stille bølgelyden brer seg.
+accent_color=Aksentfarge
+accent_system=Systemstandard
+accent_custom=Egendefinert
+accent_pick=Velg farge

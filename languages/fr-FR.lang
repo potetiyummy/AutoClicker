@@ -75,3 +75,7 @@ dark_mode=Mode sombre
 close=Fermer
 scroll_speed=Vitesse de défilement
 preview_text=Un ciel bleu et des nuages blancs, le doux bruit des vagues s'étend.
+accent_color=Couleur d'accent
+accent_system=Par défaut du système
+accent_custom=Personnalisée
+accent_pick=Choisir la couleur

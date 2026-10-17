@@ -1,3 +1,4 @@
+using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,6 +53,7 @@ static class Strings
         _table = LoadTable(Lang);
         Theme.IsDark = ReadConfigValue("THEME") == "dark";
         Marquee.Speed = ReadScrollSpeed();
+        LoadAccent();
     }
 
     // Windows の表示言語に対応する言語コード。対応していない場合は null
@@ -179,6 +181,32 @@ static class Strings
     {
         Marquee.Speed = speed;
         WriteConfigValue("SCROLL_SPEED", speed == DefaultScrollSpeed ? null : $"\"{speed}\"");
+    }
+
+    // アクセントカラーを設定ファイルから読む。ACCENT_MODE が custom のときだけカスタム色を使う
+    public static void LoadAccent()
+    {
+        Theme.CustomAccent = ReadConfigValue("ACCENT_MODE") == "custom";
+        string hex = ReadConfigValue("ACCENT_COLOR");
+        if (hex != null && hex.Length == 7 && hex[0] == '#')
+        {
+            try
+            {
+                Theme.CustomAccentColor = ColorTranslator.FromHtml(hex);
+            }
+            catch (Exception)
+            {
+            }
+        }
+    }
+
+    // システムの規定のときは設定行を消す（ダークモードなどと同じ扱い）
+    public static void SaveAccent(bool custom, Color color)
+    {
+        Theme.CustomAccent = custom;
+        Theme.CustomAccentColor = color;
+        WriteConfigValue("ACCENT_MODE", custom ? "\"custom\"" : null);
+        WriteConfigValue("ACCENT_COLOR", custom ? $"\"#{color.R:X2}{color.G:X2}{color.B:X2}\"" : null);
     }
 
     // ダークテーマを保存する。ライト（既定）のときは設定行を消す

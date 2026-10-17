@@ -75,3 +75,7 @@ dark_mode=Mørk tilstand
 close=Luk
 scroll_speed=Rullehastighed
 preview_text=Blå himmel og hvide skyer, den stille bølgelyd breder sig.
+accent_color=Accentfarve
+accent_system=Systemstandard
+accent_custom=Brugerdefineret
+accent_pick=Vælg farve

@@ -75,3 +75,7 @@ dark_mode=Dark mode
 close=Close
 scroll_speed=Scroll speed
 preview_text=Blue sky and white clouds, with the quiet sound of waves spreading out.
+accent_color=Accent color
+accent_system=System default
+accent_custom=Custom
+accent_pick=Choose color

@@ -75,3 +75,7 @@ dark_mode=Dunkelmodus
 close=Schließen
 scroll_speed=Scrollgeschwindigkeit
 preview_text=Blauer Himmel und weiße Wolken, dazu das leise Rauschen der Wellen.
+accent_color=Akzentfarbe
+accent_system=Systemstandard
+accent_custom=Benutzerdefiniert
+accent_pick=Farbe wählen

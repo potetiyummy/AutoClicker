@@ -75,3 +75,7 @@ dark_mode=Mod întunecat
 close=Închide
 scroll_speed=Viteza de derulare
 preview_text=Cer albastru și nori albi, sunetul liniștit al valurilor se întinde.
+accent_color=Culoare de accent
+accent_system=Implicit sistem
+accent_custom=Personalizată
+accent_pick=Alege culoarea

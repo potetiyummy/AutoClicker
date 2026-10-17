@@ -75,3 +75,7 @@ dark_mode=ダークモード
 close=閉じるで
 scroll_speed=スクロール速度
 preview_text=お気に入りのカフェで美味しいコーヒーとケーキを楽しみながら、ワクワクする特別な時間を過ごしたるで。
+accent_color=アクセントカラー
+accent_system=システムの規定
+accent_custom=カスタム
+accent_pick=色を選ぶで

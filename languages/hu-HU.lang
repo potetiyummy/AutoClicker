@@ -75,3 +75,7 @@ dark_mode=Sötét mód
 close=Bezárás
 scroll_speed=Görgetési sebesség
 preview_text=Kék ég és fehér felhők, a hullámok csendes zaja terjed szét.
+accent_color=Kiemelőszín
+accent_system=Rendszer alapértelmezett
+accent_custom=Egyéni
+accent_pick=Szín kiválasztása

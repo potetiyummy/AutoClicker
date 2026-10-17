@@ -75,3 +75,7 @@ dark_mode=Modo oscuro
 close=Cerrar
 scroll_speed=Velocidad de desplazamiento
 preview_text=El cielo azul y las nubes blancas; el suave sonido de las olas se extiende.
+accent_color=Color de acento
+accent_system=Predeterminado del sistema
+accent_custom=Personalizado
+accent_pick=Elegir color

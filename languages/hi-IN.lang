@@ -75,3 +75,7 @@ dark_mode=डार्क मोड
 close=बंद करें
 scroll_speed=स्क्रॉल गति
 preview_text=नीला आकाश और सफ़ेद बादल, लहरों की शांत आवाज़ फैल रही है।
+accent_color=एक्सेंट रंग
+accent_system=सिस्टम डिफ़ॉल्ट
+accent_custom=कस्टम
+accent_pick=रंग चुनें

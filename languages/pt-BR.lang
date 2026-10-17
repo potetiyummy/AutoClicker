@@ -75,3 +75,7 @@ dark_mode=Modo escuro
 close=Fechar
 scroll_speed=Velocidade de rolagem
 preview_text=Céu azul e nuvens brancas, com o som calmo das ondas se espalhando.
+accent_color=Cor de destaque
+accent_system=Padrão do sistema
+accent_custom=Personalizada
+accent_pick=Escolher cor

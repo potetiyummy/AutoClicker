@@ -75,3 +75,7 @@ dark_mode=Mode gelap
 close=Tutup
 scroll_speed=Kecepatan gulir
 preview_text=Langit biru dan awan putih, suara ombak yang tenang menyebar.
+accent_color=Warna aksen
+accent_system=Default sistem
+accent_custom=Kustom
+accent_pick=Pilih warna

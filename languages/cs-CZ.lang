@@ -75,3 +75,7 @@ dark_mode=Tmavý režim
 close=Zavřít
 scroll_speed=Rychlost posouvání
 preview_text=Modrá obloha a bílé mraky, tichý šum vln se rozlévá kolem.
+accent_color=Barva zvýraznění
+accent_system=Výchozí systému
+accent_custom=Vlastní
+accent_pick=Vybrat barvu
