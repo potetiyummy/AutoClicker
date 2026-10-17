@@ -69,3 +69,7 @@ yes=Так
 no=Ні
 to_dark_mode=Перейти до темної теми
 to_light_mode=Перейти до світлої теми
+settings=Налаштування
+settings_language=Мова
+dark_mode=Темна тема
+close=Закрити

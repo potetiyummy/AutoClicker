@@ -69,3 +69,7 @@ yes=نعم
 no=لا
 to_dark_mode=التبديل إلى الوضع الداكن
 to_light_mode=التبديل إلى الوضع الفاتح
+settings=الإعدادات
+settings_language=اللغة
+dark_mode=الوضع الداكن
+close=إغلاق

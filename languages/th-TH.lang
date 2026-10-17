@@ -69,3 +69,7 @@ yes=ใช่
 no=ไม่
 to_dark_mode=เปลี่ยนเป็นโหมดมืด
 to_light_mode=เปลี่ยนเป็นโหมดสว่าง
+settings=การตั้งค่า
+settings_language=ภาษา
+dark_mode=โหมดมืด
+close=ปิด

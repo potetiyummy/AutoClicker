@@ -69,3 +69,7 @@ yes=Ja
 no=Nej
 to_dark_mode=Byt till mörkt läge
 to_light_mode=Byt till ljust läge
+settings=Inställningar
+settings_language=Språk
+dark_mode=Mörkt läge
+close=Stäng

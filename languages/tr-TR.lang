@@ -69,3 +69,7 @@ yes=Evet
 no=Hayır
 to_dark_mode=Koyu moda geç
 to_light_mode=Açık moda geç
+settings=Ayarlar
+settings_language=Dil
+dark_mode=Koyu mod
+close=Kapat

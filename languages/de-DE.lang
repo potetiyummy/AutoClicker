@@ -69,3 +69,7 @@ yes=Ja
 no=Nein
 to_dark_mode=In den Dunkelmodus wechseln
 to_light_mode=In den Hellmodus wechseln
+settings=Einstellungen
+settings_language=Sprache
+dark_mode=Dunkelmodus
+close=Schließen

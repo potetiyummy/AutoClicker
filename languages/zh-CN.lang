@@ -69,3 +69,7 @@ yes=是
 no=否
 to_dark_mode=切换为深色模式
 to_light_mode=切换为浅色模式
+settings=设置
+settings_language=语言
+dark_mode=深色模式
+close=关闭

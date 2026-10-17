@@ -69,3 +69,7 @@ yes=예
 no=아니요
 to_dark_mode=다크 모드로 변경
 to_light_mode=라이트 모드로 변경
+settings=설정
+settings_language=언어
+dark_mode=다크 모드
+close=닫기

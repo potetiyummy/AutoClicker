@@ -69,3 +69,7 @@ yes=Ya
 no=Tidak
 to_dark_mode=Ganti ke mode gelap
 to_light_mode=Ganti ke mode terang
+settings=Pengaturan
+settings_language=Bahasa
+dark_mode=Mode gelap
+close=Tutup

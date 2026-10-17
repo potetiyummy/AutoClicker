@@ -69,3 +69,7 @@ yes=Tak
 no=Nie
 to_dark_mode=Przełącz na tryb ciemny
 to_light_mode=Przełącz na tryb jasny
+settings=Ustawienia
+settings_language=Język
+dark_mode=Tryb ciemny
+close=Zamknij

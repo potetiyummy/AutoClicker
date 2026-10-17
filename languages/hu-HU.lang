@@ -69,3 +69,7 @@ yes=Igen
 no=Nem
 to_dark_mode=Váltás sötét módra
 to_light_mode=Váltás világos módra
+settings=Beállítások
+settings_language=Nyelv
+dark_mode=Sötét mód
+close=Bezárás

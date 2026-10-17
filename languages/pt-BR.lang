@@ -69,3 +69,7 @@ yes=Sim
 no=Não
 to_dark_mode=Mudar para modo escuro
 to_light_mode=Mudar para modo claro
+settings=Configurações
+settings_language=Idioma
+dark_mode=Modo escuro
+close=Fechar

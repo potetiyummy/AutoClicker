@@ -69,3 +69,7 @@ yes=はい
 no=いいえ
 to_dark_mode=ダークモードにする
 to_light_mode=ライトモードにする
+settings=設定
+settings_language=言語
+dark_mode=ダークモード
+close=閉じる

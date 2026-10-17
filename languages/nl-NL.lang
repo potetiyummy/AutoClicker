@@ -69,3 +69,7 @@ yes=Ja
 no=Nee
 to_dark_mode=Naar donkere modus
 to_light_mode=Naar lichte modus
+settings=Instellingen
+settings_language=Taal
+dark_mode=Donkere modus
+close=Sluiten

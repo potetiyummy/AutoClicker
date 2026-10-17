@@ -69,3 +69,7 @@ yes=Kyllä
 no=Ei
 to_dark_mode=Vaihda tummaan tilaan
 to_light_mode=Vaihda vaaleaan tilaan
+settings=Asetukset
+settings_language=Kieli
+dark_mode=Tumma tila
+close=Sulje

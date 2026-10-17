@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.10.8";
+    const string Version = "1.10.10";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -43,7 +43,6 @@ sealed class MainForm : Form
 
     // 画面の部品（BuildUi で作り直す）
     Dictionary<string, Panel> _pages = new Dictionary<string, Panel>();
-    ComboBox _langBox;
     SegmentedButton _tabs;
     Button _runBtn;
     Label _statusLabel;
@@ -94,50 +93,11 @@ sealed class MainForm : Form
         BackColor = Theme.Window;
         if (IsHandleCreated) Native.SetDarkTitleBar(Handle, Theme.IsDark);
 
-        // 右上：テーマ切替（ライト／ダーク）。選択は config.py に保存する
-        var themeBtn = Ui.Button(Strings.T(Theme.IsDark ? "to_light_mode" : "to_dark_mode"), 10, false, null, 130, 28);
-        themeBtn.Location = new Point(500, 10);
-        themeBtn.Click += (s, e) => BeginInvoke(new Action(() =>
-        {
-            Strings.SaveTheme(!Theme.IsDark);
-            BuildUi();
-            RefreshList();
-        }));
-        Controls.Add(themeBtn);
-
-        // 右上：言語（ドロップダウン）
-        var options = Strings.LanguageOptions();
-        _langBox = new ComboBox
-        {
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            FlatStyle = FlatStyle.Flat,
-            BackColor = Theme.Entry,
-            ForeColor = Theme.Text,
-            Font = Theme.Ui(10),
-            Width = 160,
-            Location = new Point(640, 10),
-            DrawMode = DrawMode.OwnerDrawFixed,
-            ItemHeight = 22,
-        };
-        // ダーク／ライトに合わせて項目を自前で描く（開いた一覧も同じ配色にする）
-        _langBox.DrawItem += (s, e) =>
-        {
-            if (e.Index < 0) return;
-            bool selected = (e.State & DrawItemState.Selected) != 0;
-            using (var b = new SolidBrush(selected ? Theme.Track : Theme.Entry))
-                e.Graphics.FillRectangle(b, e.Bounds);
-            Marquee.Draw(e.Graphics, _langBox, new Rectangle(e.Bounds.X + 6, e.Bounds.Y, e.Bounds.Width - 8, e.Bounds.Height),
-                (string)_langBox.Items[e.Index], Theme.Ui(10), Theme.Text, StringAlignment.Near);
-        };
-        foreach (var o in options) _langBox.Items.Add(o.Label);
-        SyncLanguageChecks();
-        _langBox.SelectedIndexChanged += (s, e) =>
-        {
-            string label = (string)_langBox.SelectedItem;
-            string code = options.First(o => o.Label == label).Code;
-            BeginInvoke(new Action(() => OnLanguageChanged(code)));
-        };
-        Controls.Add(_langBox);
+        // 右上：設定ボタン。押すと設定ウィンドウを開く（開いている間、このウィンドウは操作できない）
+        var settingsBtn = Ui.Button(Strings.T("settings"), 10, false, null, 130, 28);
+        settingsBtn.Location = new Point(650, 10);
+        settingsBtn.Click += (s, e) => BeginInvoke(new Action(OpenSettings));
+        Controls.Add(settingsBtn);
 
         BuildLeftColumn();
         BuildRightColumn();
@@ -576,34 +536,33 @@ sealed class MainForm : Form
 
     // --- 言語 ---
 
-    // ドロップダウンの表示を現在の言語に合わせる
-    void SyncLanguageChecks()
+    void OpenSettings()
     {
-        string code = Strings.CurrentCode();
-        _langBox.SelectedItem = Strings.LanguageOptions().First(o => o.Code == code).Label;
+        using (var dlg = new SettingsForm(this))
+            dlg.ShowDialog(this);
     }
 
-    void OnLanguageChanged(string code)
+    // 設定ウィンドウから呼ばれる。対応外の既定言語の確認を経て切り替える。切り替えた場合は true
+    public bool ChangeLanguage(string code)
     {
-        if (code == Strings.CurrentCode())
-        {
-            SyncLanguageChecks();
-            return;
-        }
+        if (code == Strings.CurrentCode()) return true;
 
         if (code == Strings.SystemValue && Strings.SystemLang() == null)
         {
-            // 変更前の言語で確認する。「他の言語に変更する」なら元の選択に戻す
-            if (!AskUnsupported(Strings.Lang))
-            {
-                SyncLanguageChecks();
-                return;
-            }
+            // 変更前の言語で確認する。「他の言語に変更する」なら切り替えない
+            if (!AskUnsupported(Strings.Lang)) return false;
             code = "en-US";
         }
 
         Strings.ApplyLanguage(code);
+        Rebuild();
+        return true;
+    }
+
+    public void Rebuild()
+    {
         BuildUi();
+        RefreshList();
     }
 
     void PromptUnsupportedAtStart()
