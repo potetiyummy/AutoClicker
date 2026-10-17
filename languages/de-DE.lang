@@ -79,3 +79,7 @@ accent_color=Akzentfarbe
 accent_system=Systemstandard
 accent_custom=Benutzerdefiniert
 accent_pick=Farbe wählen
+cancel=Abbrechen
+color_hsv=Ton,Sätt,Helligk
+color_rgb=Rot,Grün,Blau
+color_hex=Hex

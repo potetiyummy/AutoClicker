@@ -79,3 +79,7 @@ accent_color=Колір акценту
 accent_system=Системний
 accent_custom=Користувацький
 accent_pick=Вибрати колір
+cancel=Скасувати
+color_hsv=Відтінок,Насич,Яскравість
+color_rgb=Червоний,Зелений,Синій
+color_hex=HEX

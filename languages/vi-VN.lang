@@ -79,3 +79,7 @@ accent_color=Màu nhấn
 accent_system=Mặc định hệ thống
 accent_custom=Tùy chỉnh
 accent_pick=Chọn màu
+cancel=Hủy
+color_hsv=Sắc độ,Bão hòa,Độ sáng
+color_rgb=Đỏ,Lục,Lam
+color_hex=Hex

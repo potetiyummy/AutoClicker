@@ -176,9 +176,9 @@ sealed class SettingsForm : Form
     // カスタム色を選ぶ。キャンセルしたときは、アクセントの選択を元に戻す
     void PickCustomColor()
     {
-        using (var dlg = new ColorDialog { Color = Theme.CustomAccentColor, FullOpen = true, AnyColor = true })
+        using (var dlg = new ColorPickerForm(Theme.CustomAccentColor))
         {
-            if (dlg.ShowDialog(this) == DialogResult.OK) ApplyAccent(true, dlg.Color);
+            if (dlg.ShowDialog(this) == DialogResult.OK) ApplyAccent(true, dlg.SelectedColor);
             else Build();
         }
     }

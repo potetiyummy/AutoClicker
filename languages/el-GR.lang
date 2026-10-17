@@ -79,3 +79,7 @@ accent_color=Χρώμα τονισμού
 accent_system=Προεπιλογή συστήματος
 accent_custom=Προσαρμογή
 accent_pick=Επιλογή χρώματος
+cancel=Ακύρωση
+color_hsv=Απόχρωση,Κορεσμός,Φως
+color_rgb=Κόκκινο,Πράσινο,Μπλε
+color_hex=Δεκαεξαδ.

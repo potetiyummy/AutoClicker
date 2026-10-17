@@ -79,3 +79,7 @@ accent_color=Korostusväri
 accent_system=Järjestelmän oletus
 accent_custom=Mukautettu
 accent_pick=Valitse väri
+cancel=Peruuta
+color_hsv=Sävy,Kylläis,Kirkkaus
+color_rgb=Punainen,Vihreä,Sininen
+color_hex=Heksa

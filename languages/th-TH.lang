@@ -79,3 +79,7 @@ accent_color=สีเน้น
 accent_system=ค่าเริ่มต้นของระบบ
 accent_custom=กำหนดเอง
 accent_pick=เลือกสี
+cancel=ยกเลิก
+color_hsv=เฉดสี,ความอิ่มตัว,ความสว่าง
+color_rgb=แดง,เขียว,น้ำเงิน
+color_hex=เลขฐานสิบหก

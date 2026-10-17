@@ -79,3 +79,7 @@ accent_color=एक्सेंट रंग
 accent_system=सिस्टम डिफ़ॉल्ट
 accent_custom=कस्टम
 accent_pick=रंग चुनें
+cancel=रद्द करें
+color_hsv=रंगत,संतृप्ति,चमक
+color_rgb=लाल,हरा,नीला
+color_hex=हेक्स

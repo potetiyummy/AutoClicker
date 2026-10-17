@@ -79,3 +79,7 @@ accent_color=Accentkleur
 accent_system=Systeemstandaard
 accent_custom=Aangepast
 accent_pick=Kleur kiezen
+cancel=Annuleren
+color_hsv=Tint,Verz,Helderh
+color_rgb=Rood,Groen,Blauw
+color_hex=Hex

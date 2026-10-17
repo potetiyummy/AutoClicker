@@ -79,3 +79,7 @@ accent_color=Kiemelőszín
 accent_system=Rendszer alapértelmezett
 accent_custom=Egyéni
 accent_pick=Szín kiválasztása
+cancel=Mégse
+color_hsv=Árnyalat,Telít,Fényerő
+color_rgb=Vörös,Zöld,Kék
+color_hex=Hex

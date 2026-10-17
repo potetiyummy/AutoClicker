@@ -79,3 +79,7 @@ accent_color=Barva zvýraznění
 accent_system=Výchozí systému
 accent_custom=Vlastní
 accent_pick=Vybrat barvu
+cancel=Zrušit
+color_hsv=Odstín,Sytost,Jas
+color_rgb=Červená,Zelená,Modrá
+color_hex=Hex

@@ -79,3 +79,7 @@ accent_color=Aksentfarge
 accent_system=Systemstandard
 accent_custom=Egendefinert
 accent_pick=Velg farge
+cancel=Avbryt
+color_hsv=Fargetone,Metn,Lysstyrke
+color_rgb=Rød,Grønn,Blå
+color_hex=Hex

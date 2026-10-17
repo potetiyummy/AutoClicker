@@ -79,3 +79,7 @@ accent_color=アクセントカラー
 accent_system=システムの規定
 accent_custom=カスタム
 accent_pick=色を選ぶ
+cancel=キャンセル
+color_hsv=色相,彩度,明暗
+color_rgb=レッド,グリーン,ブルー
+color_hex=16進数

@@ -79,3 +79,7 @@ accent_color=Culoare de accent
 accent_system=Implicit sistem
 accent_custom=Personalizată
 accent_pick=Alege culoarea
+cancel=Anulează
+color_hsv=Nuanță,Satur,Lumin
+color_rgb=Roșu,Verde,Albastru
+color_hex=Hex

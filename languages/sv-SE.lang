@@ -79,3 +79,7 @@ accent_color=Accentfärg
 accent_system=Systemstandard
 accent_custom=Anpassad
 accent_pick=Välj färg
+cancel=Avbryt
+color_hsv=Nyans,Mättn,Ljushet
+color_rgb=Röd,Grön,Blå
+color_hex=Hex

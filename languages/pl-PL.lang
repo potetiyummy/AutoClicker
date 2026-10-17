@@ -79,3 +79,7 @@ accent_color=Kolor akcentu
 accent_system=Domyślny systemu
 accent_custom=Niestandardowy
 accent_pick=Wybierz kolor
+cancel=Anuluj
+color_hsv=Odcień,Nasyc,Jasność
+color_rgb=Czerwony,Zielony,Niebieski
+color_hex=Hex

@@ -79,3 +79,7 @@ accent_color=Cor de destaque
 accent_system=Padrão do sistema
 accent_custom=Personalizada
 accent_pick=Escolher cor
+cancel=Cancelar
+color_hsv=Matiz,Sat,Brilho
+color_rgb=Vermelho,Verde,Azul
+color_hex=Hex

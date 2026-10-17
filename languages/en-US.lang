@@ -79,3 +79,7 @@ accent_color=Accent color
 accent_system=System default
 accent_custom=Custom
 accent_pick=Choose color
+cancel=Cancel
+color_hsv=Hue, Sat, Bright
+color_rgb=Red, Green, Blue
+color_hex=Hex

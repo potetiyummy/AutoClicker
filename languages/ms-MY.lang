@@ -79,3 +79,7 @@ accent_color=Warna aksen
 accent_system=Lalai sistem
 accent_custom=Tersuai
 accent_pick=Pilih warna
+cancel=Batal
+color_hsv=Hue,Tepu,Kecerah
+color_rgb=Merah,Hijau,Biru
+color_hex=Hex

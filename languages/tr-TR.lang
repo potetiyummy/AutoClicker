@@ -79,3 +79,7 @@ accent_color=Vurgu rengi
 accent_system=Sistem varsayılanı
 accent_custom=Özel
 accent_pick=Renk seç
+cancel=İptal
+color_hsv=Ton,Doygun,Parlak
+color_rgb=Kırmızı,Yeşil,Mavi
+color_hex=Hex

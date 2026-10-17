@@ -79,3 +79,7 @@ accent_color=Color de acento
 accent_system=Predeterminado del sistema
 accent_custom=Personalizado
 accent_pick=Elegir color
+cancel=Cancelar
+color_hsv=Matiz,Sat,Brillo
+color_rgb=Rojo,Verde,Azul
+color_hex=Hex

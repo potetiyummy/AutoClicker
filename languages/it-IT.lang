@@ -79,3 +79,7 @@ accent_color=Colore di accento
 accent_system=Predefinito di sistema
 accent_custom=Personalizzato
 accent_pick=Scegli colore
+cancel=Annulla
+color_hsv=Tinta,Sat,Lumin
+color_rgb=Rosso,Verde,Blu
+color_hex=Esadecimale

@@ -79,3 +79,7 @@ accent_color=Акцентный цвет
 accent_system=Системный
 accent_custom=Пользовательский
 accent_pick=Выбрать цвет
+cancel=Отмена
+color_hsv=Тон,Насыщ,Яркость
+color_rgb=Красный,Зелёный,Синий
+color_hex=HEX

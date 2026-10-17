@@ -79,3 +79,7 @@ accent_color=لون التمييز
 accent_system=افتراضي النظام
 accent_custom=مخصص
 accent_pick=اختيار اللون
+cancel=إلغاء
+color_hsv=اللون،التشبع،السطوع
+color_rgb=أحمر،أخضر،أزرق
+color_hex=سداسي

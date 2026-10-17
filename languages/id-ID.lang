@@ -79,3 +79,7 @@ accent_color=Warna aksen
 accent_system=Default sistem
 accent_custom=Kustom
 accent_pick=Pilih warna
+cancel=Batal
+color_hsv=Rona,Saturasi,Kecerah
+color_rgb=Merah,Hijau,Biru
+color_hex=Hex

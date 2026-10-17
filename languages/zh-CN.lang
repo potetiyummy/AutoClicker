@@ -79,3 +79,7 @@ accent_color=强调色
 accent_system=系统默认
 accent_custom=自定义
 accent_pick=选择颜色
+cancel=取消
+color_hsv=色相,饱和度,明度
+color_rgb=红,绿,蓝
+color_hex=十六进制
