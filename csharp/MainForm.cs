@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.10.7";
+    const string Version = "1.10.8";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -48,7 +48,7 @@ sealed class MainForm : Form
     Button _runBtn;
     Label _statusLabel;
     MacroListPanel _listPanel;
-    CheckBox _keepAwakeBox;
+    MarqueeCheckBox _keepAwakeBox;
     TextBox _wayBox;
     WaypointListPanel _holdList;
     Label _lblStart, _lblEnd;
@@ -205,12 +205,11 @@ sealed class MainForm : Form
         clearBtn.Click += (s, e) => ClearList();
         Place(clearBtn, 730, 521);
 
-        _keepAwakeBox = new CheckBox
+        _keepAwakeBox = new MarqueeCheckBox
         {
             Text = Strings.T("keep_awake"),
             Font = Theme.Ui(12),
             ForeColor = _keepAwakeOn ? Theme.Green : Theme.Text,
-            AutoSize = true,
             Checked = _keepAwakeOn,
         };
         _keepAwakeBox.CheckedChanged += (s, e) =>
