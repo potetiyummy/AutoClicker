@@ -38,8 +38,8 @@ static class Strings
 
     public static string Lang { get; private set; }
     public static bool SystemMode { get; private set; }
-
-    public static string ConfigPath => Path.Combine(AppContext.BaseDirectory, "config.py");
+    // 設定ファイルは TEMP フォルダ内の autoclicker フォルダに保存する
+    public static string ConfigPath => Path.Combine(Path.GetTempPath(), "autoclicker", "config.py");
 
     public static void Init()
     {
@@ -140,6 +140,7 @@ static class Strings
             else
                 newText = (text.Length > 0 ? text.TrimEnd('\n') + "\n" : "") + line + "\n";
         }
+        Directory.CreateDirectory(Path.GetDirectoryName(ConfigPath));
         File.WriteAllText(ConfigPath, newText, new UTF8Encoding(false));
     }
 
