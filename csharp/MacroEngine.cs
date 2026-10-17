@@ -1,0 +1,275 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Forms;
+
+// engine.py の移植。実行スレッドがアクションを順に再生する
+sealed class MacroEngine
+{
+    static readonly Dictionary<string, ushort> KeyNames = new Dictionary<string, ushort>
+    {
+        ["ctrl"] = 0x11, ["lctrl"] = 0xA2, ["rctrl"] = 0xA3,
+        ["shift"] = 0x10, ["lshift"] = 0xA0, ["rshift"] = 0xA1,
+        ["alt"] = 0x12, ["lalt"] = 0xA4, ["ralt"] = 0xA5,
+        ["win"] = 0x5B, ["cmd"] = 0x5B,
+        ["enter"] = 0x0D, ["space"] = 0x20, ["tab"] = 0x09, ["esc"] = 0x1B,
+        ["delete"] = 0x2E, ["backspace"] = 0x08, ["prtsc"] = 0x2C, ["print_screen"] = 0x2C,
+        ["left"] = 0x25, ["up"] = 0x26, ["right"] = 0x27, ["down"] = 0x28,
+        ["home"] = 0x24, ["end"] = 0x23, ["page_up"] = 0x21, ["page_down"] = 0x22,
+        ["insert"] = 0x2D, ["pause"] = 0x13, ["caps_lock"] = 0x14,
+        ["num_lock"] = 0x90, ["scroll_lock"] = 0x91, ["menu"] = 0x5D,
+        ["f1"] = 0x70, ["f2"] = 0x71, ["f3"] = 0x72, ["f4"] = 0x73, ["f5"] = 0x74, ["f6"] = 0x75,
+        ["f7"] = 0x76, ["f8"] = 0x77, ["f9"] = 0x78, ["f10"] = 0x79, ["f11"] = 0x7A, ["f12"] = 0x7B,
+    };
+
+    // 拡張キーとして送る必要がある仮想キー
+    static readonly HashSet<ushort> ExtendedKeys = new HashSet<ushort>
+    {
+        0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2C, 0x2D, 0x2E, 0x5B, 0x5C, 0x5D, 0xA3, 0xA5, 0x90,
+    };
+
+    public readonly List<MacroAction> Actions = new List<MacroAction>();
+    public readonly object Sync = new object();
+
+    public event Action<bool> StateChanged;
+
+    volatile bool _active;
+    volatile bool _running = true;
+
+    public bool Active => _active;
+
+    public MacroEngine()
+    {
+        var thread = new Thread(Loop) { IsBackground = true };
+        thread.Start();
+    }
+
+    public void Stop() => _running = false;
+
+    // 実行開始/停止の切り替え。画面外の座標があれば開始しない
+    public void Toggle(IWin32Window owner)
+    {
+        if (Actions.Count == 0)
+        {
+            SetActive(false);
+            Dialogs.Show(owner, Strings.T("no_actions"), Strings.T("notice"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        if (!CheckAllCoordinates())
+        {
+            SetActive(false);
+            Dialogs.Show(owner, Strings.T("invalid_coord"), Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return;
+        }
+
+        SetActive(!_active);
+    }
+
+    void SetActive(bool value)
+    {
+        _active = value;
+        StateChanged?.Invoke(value);
+    }
+
+    static bool IsValidCoordinate(int x, int y)
+    {
+        var bounds = Screen.PrimaryScreen.Bounds;
+        return x >= 0 && x < bounds.Width && y >= 0 && y < bounds.Height;
+    }
+
+    bool CheckAllCoordinates()
+    {
+        lock (Sync)
+        {
+            foreach (var act in Actions)
+            {
+                if (act.Type == "click" || act.Type == "hold")
+                {
+                    if (!IsValidCoordinate(act.X ?? 0, act.Y ?? 0)) return false;
+                    if (act.Type == "hold")
+                    {
+                        foreach (var wp in act.Waypoints ?? new List<int[]>())
+                            if (!IsValidCoordinate(wp[0], wp[1])) return false;
+                    }
+                }
+                else if (act.Type == "drag")
+                {
+                    if (!IsValidCoordinate(act.Sx ?? 0, act.Sy ?? 0)) return false;
+                    if (!IsValidCoordinate(act.Ex ?? 0, act.Ey ?? 0)) return false;
+                    foreach (var wp in act.Waypoints ?? new List<int[]>())
+                        if (!IsValidCoordinate(wp[0], wp[1])) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    void Loop()
+    {
+        while (_running)
+        {
+            if (!_active || Actions.Count == 0)
+            {
+                Thread.Sleep(200);
+                continue;
+            }
+
+            MacroAction[] snapshot;
+            lock (Sync) snapshot = Actions.ToArray();
+
+            foreach (var act in snapshot)
+            {
+                if (!_active) break;
+                Run(act);
+                Thread.Sleep(100);
+            }
+        }
+    }
+
+    void Run(MacroAction act)
+    {
+        switch (act.Type)
+        {
+            case "click":
+                MoveTo(act.X ?? 0, act.Y ?? 0);
+                Thread.Sleep(50);
+                Click(IsRight(act), down: true);
+                Click(IsRight(act), down: false);
+                break;
+
+            case "drag":
+                MoveTo(act.Sx ?? 0, act.Sy ?? 0);
+                Thread.Sleep(50);
+                Click(IsRight(act), down: true);
+                Thread.Sleep(50);
+                foreach (var wp in act.Waypoints ?? new List<int[]>())
+                {
+                    MoveTo(wp[0], wp[1]);
+                    Thread.Sleep(100);
+                }
+                MoveTo(act.Ex ?? 0, act.Ey ?? 0);
+                Thread.Sleep(50);
+                Click(IsRight(act), down: false);
+                break;
+
+            case "hold":
+                MoveTo(act.X ?? 0, act.Y ?? 0);
+                Thread.Sleep(50);
+                Click(IsRight(act), down: true);
+                var start = Stopwatch.StartNew();
+                foreach (var wp in act.Waypoints ?? new List<int[]>())
+                {
+                    MoveTo(wp[0], wp[1]);
+                    Thread.Sleep(100);
+                }
+                // 合計の長押し時間になるまで待ってから離す
+                int remaining = (act.Duration ?? 0) - (int)start.ElapsedMilliseconds;
+                if (remaining > 0) Thread.Sleep(remaining);
+                Click(IsRight(act), down: false);
+                break;
+
+            case "keyboard":
+                if (act.Mode == "text")
+                {
+                    TypeText(act.Value ?? "");
+                }
+                else
+                {
+                    PressHotkey(act.Value ?? "");
+                }
+                break;
+
+            case "wait":
+                Thread.Sleep(act.Duration ?? 0);
+                break;
+        }
+    }
+
+    static bool IsRight(MacroAction act) => (act.Btn ?? "").Contains("right");
+
+    static void MoveTo(int x, int y) => Native.SetCursorPos(x, y);
+
+    static void Click(bool right, bool down)
+    {
+        uint flag = right
+            ? (down ? Native.MOUSEEVENTF_RIGHTDOWN : Native.MOUSEEVENTF_RIGHTUP)
+            : (down ? Native.MOUSEEVENTF_LEFTDOWN : Native.MOUSEEVENTF_LEFTUP);
+        Native.mouse_event(flag, 0, 0, 0, UIntPtr.Zero);
+    }
+
+    static void SendKey(ushort vk, bool up)
+    {
+        uint flags = up ? Native.KEYEVENTF_KEYUP : 0;
+        if (ExtendedKeys.Contains(vk)) flags |= Native.KEYEVENTF_EXTENDEDKEY;
+        SendKeyInput(new Native.KEYBDINPUT { wVk = vk, dwFlags = flags });
+    }
+
+    static void SendChar(char c, bool up)
+    {
+        uint flags = Native.KEYEVENTF_UNICODE | (up ? Native.KEYEVENTF_KEYUP : 0);
+        SendKeyInput(new Native.KEYBDINPUT { wVk = 0, wScan = c, dwFlags = flags });
+    }
+
+    static void SendKeyInput(Native.KEYBDINPUT ki)
+    {
+        var input = new Native.INPUT[1];
+        input[0].type = Native.INPUT_KEYBOARD;
+        input[0].u.ki = ki;
+        Native.SendInput(1, input, Marshal.SizeOf(typeof(Native.INPUT)));
+    }
+
+    static void TypeText(string text)
+    {
+        foreach (char c in text)
+        {
+            SendChar(c, up: false);
+            SendChar(c, up: true);
+        }
+    }
+
+    // "{ctrl+c}" や "ctrl+c" のような文字列を仮想キーの列に変換する。
+    // 解釈できないキーがあれば false を返す
+    static bool TryParseHotkey(string value, out List<ushort> keys)
+    {
+        keys = new List<ushort>();
+        string hk = value.ToLowerInvariant().Trim();
+        if (hk.StartsWith("{") && hk.EndsWith("}")) hk = hk.Substring(1, hk.Length - 2);
+
+        foreach (string raw in hk.Split('+'))
+        {
+            string p = raw.Trim();
+            if (p == "fn") continue;  // fn は環境依存のため送らない
+
+            if (p.Length == 1)
+            {
+                short scan = Native.VkKeyScan(p[0]);
+                if (scan == -1) return false;
+                if ((scan & 0x0100) != 0) keys.Add(0x10);  // Shift が必要な文字
+                keys.Add((ushort)(scan & 0xFF));
+            }
+            else if (KeyNames.TryGetValue(p, out ushort vk))
+            {
+                keys.Add(vk);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return keys.Count > 0;
+    }
+
+    static void PressHotkey(string value)
+    {
+        // 解釈できないキーを含む場合は何も送らない（押しっぱなしになるのを防ぐ）
+        if (!TryParseHotkey(value, out List<ushort> keys)) return;
+
+        foreach (ushort k in keys) SendKey(k, up: false);
+        Thread.Sleep(50);
+        for (int i = keys.Count - 1; i >= 0; i--) SendKey(keys[i], up: true);
+    }
+}

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>autoclicker</AssemblyName>
+    <RootNamespace>AutoClicker</RootNamespace>
+    <ApplicationIcon>..\app_icon.ico</ApplicationIcon>
+    <Version>1.10.0</Version>
+    <AssemblyVersion>1.10.0.0</AssemblyVersion>
+    <Product>Auto Clicker</Product>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- 単体 exe にする（.NET ランタイム同梱・Python 不要） -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishTrimmed>false</PublishTrimmed>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <!-- 画像・言語ファイルは既存の Python 版と共有して埋め込む -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\images\*.png" LogicalName="images.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\languages\*.lang" LogicalName="languages.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\app_icon.ico" LogicalName="app_icon.ico" />
+  </ItemGroup>
+
+</Project>
