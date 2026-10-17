@@ -12,7 +12,7 @@ static class Strings
     public const string DefaultLang = "en-US";
     public const string SystemValue = "system";
 
-    public static readonly string[] SupportedLangs = { "ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "it-IT", "nl-NL", "pl-PL", "ar-SA", "hi-IN", "id-ID", "tr-TR", "vi-VN", "th-TH", "ms-MY" };
+    public static readonly string[] SupportedLangs = { "ja-JP", "en-US", "ko-KR", "zh-CN", "zh-TW", "es-ES", "de-DE", "fr-FR", "pt-BR", "ru-RU", "it-IT", "nl-NL", "pl-PL", "ar-SA", "hi-IN", "id-ID", "tr-TR", "vi-VN", "th-TH", "ms-MY", "sv-SE", "da-DK", "nb-NO", "fi-FI", "cs-CZ", "hu-HU", "el-GR", "uk-UA", "ro-RO" };
 
     // メニューに表示する言語名（各言語の表記のまま）
     static readonly (string Label, string Code)[] LanguageNames =
@@ -21,6 +21,8 @@ static class Strings
         ("Español", "es-ES"), ("Deutsch", "de-DE"), ("Français", "fr-FR"), ("Português", "pt-BR"), ("Русский", "ru-RU"),
         ("Italiano", "it-IT"), ("Nederlands", "nl-NL"), ("Polski", "pl-PL"), ("العربية", "ar-SA"), ("हिन्दी", "hi-IN"),
         ("Bahasa Indonesia", "id-ID"), ("Türkçe", "tr-TR"), ("Tiếng Việt", "vi-VN"), ("ไทย", "th-TH"), ("Bahasa Melayu", "ms-MY"),
+        ("Svenska", "sv-SE"), ("Dansk", "da-DK"), ("Norsk bokmål", "nb-NO"), ("Suomi", "fi-FI"), ("Čeština", "cs-CZ"),
+        ("Magyar", "hu-HU"), ("Ελληνικά", "el-GR"), ("Українська", "uk-UA"), ("Română", "ro-RO"),
     };
 
     // 日本語版で保存された .acf の値を内部キーに変換する表
@@ -77,6 +79,15 @@ static class Strings
             if (primary == 0x2A) return "vi-VN";
             if (primary == 0x1E) return "th-TH";
             if (primary == 0x3E) return "ms-MY";
+            if (primary == 0x1D) return "sv-SE";
+            if (primary == 0x06) return "da-DK";
+            if (primary == 0x14) return "nb-NO";
+            if (primary == 0x0B) return "fi-FI";
+            if (primary == 0x05) return "cs-CZ";
+            if (primary == 0x0E) return "hu-HU";
+            if (primary == 0x08) return "el-GR";
+            if (primary == 0x22) return "uk-UA";
+            if (primary == 0x18) return "ro-RO";
         }
         catch (Exception)
         {

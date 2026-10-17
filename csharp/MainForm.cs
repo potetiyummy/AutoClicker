@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.10.2";
+    const string Version = "1.10.4";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
