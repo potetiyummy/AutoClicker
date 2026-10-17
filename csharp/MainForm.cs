@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.10.6";
+    const string Version = "1.10.7";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -126,9 +126,8 @@ sealed class MainForm : Form
             bool selected = (e.State & DrawItemState.Selected) != 0;
             using (var b = new SolidBrush(selected ? Theme.Track : Theme.Entry))
                 e.Graphics.FillRectangle(b, e.Bounds);
-            TextRenderer.DrawText(e.Graphics, (string)_langBox.Items[e.Index], Theme.Ui(10),
-                new Rectangle(e.Bounds.X + 6, e.Bounds.Y, e.Bounds.Width - 8, e.Bounds.Height), Theme.Text,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.SingleLine);
+            Marquee.Draw(e.Graphics, _langBox, new Rectangle(e.Bounds.X + 6, e.Bounds.Y, e.Bounds.Width - 8, e.Bounds.Height),
+                (string)_langBox.Items[e.Index], Theme.Ui(10), Theme.Text, StringAlignment.Near);
         };
         foreach (var o in options) _langBox.Items.Add(o.Label);
         SyncLanguageChecks();
@@ -194,12 +193,12 @@ sealed class MainForm : Form
 
     void BuildRightColumn()
     {
-        Place(Ui.Label(Strings.T("list_title"), 16, true), 420, 58);
+        Place(Ui.Label(Strings.T("list_title"), 16, true, null, 380), 420, 58);
 
         _listPanel = new MacroListPanel(_engine, _images) { Location = new Point(420, 86), Size = new Size(380, 428) };
         Controls.Add(_listPanel);
 
-        _statusLabel = Ui.Label(Strings.T("status_stopped"), 14, true);
+        _statusLabel = Ui.Label(Strings.T("status_stopped"), 14, true, null, 300);
         Place(_statusLabel, 420, 525);
 
         var clearBtn = Ui.Button(Strings.T("clear"), 12, true, Theme.ClearBtn, 70, 28);

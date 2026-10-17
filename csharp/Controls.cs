@@ -46,7 +46,7 @@ static class Ui
     public static Button Button(string text, float size, bool bold, Color? bg = null, int width = 0, int height = 28)
     {
         var font = Theme.Ui(size, bold);
-        var b = new Button
+        var b = new MarqueeButton
         {
             Text = text,
             Font = font,
@@ -85,9 +85,9 @@ static class Ui
         Native.SendMessage(tb.Handle, Native.EM_SETCUEBANNER, (IntPtr)1, text);
     }
 
-    public static Label Label(string text, float size, bool bold = false, Color? color = null)
+    public static Label Label(string text, float size, bool bold = false, Color? color = null, int maxWidth = 0)
     {
-        var l = new Label
+        var l = new MarqueeLabel
         {
             Text = text,
             Font = Theme.Ui(size, bold),
@@ -96,7 +96,7 @@ static class Ui
         };
         var preferred = l.GetPreferredSize(Size.Empty);
         l.AutoSize = false;
-        l.Size = preferred;
+        l.Size = maxWidth > 0 ? new Size(Math.Min(preferred.Width, maxWidth), preferred.Height) : preferred;
         return l;
     }
 
@@ -177,8 +177,7 @@ sealed class SegmentedButton : Control
                     using (var sel = Shape.Path(new RectangleF(rect.X + 2, 2, rect.Width - 4, Height - 5), (Height - 4) / 2f))
                         g.FillPath(b, sel);
                 }
-                using (var label = new SolidBrush(_keys[i] == _selected ? Theme.OnAccent : Theme.Text))
-                    g.DrawString(Strings.T(_keys[i]), font, label, rect, sf);
+                    Marquee.Draw(g, this, Rectangle.Round(new RectangleF(rect.X + 2, 0, rect.Width - 4, Height)), Strings.T(_keys[i]), font, _keys[i] == _selected ? Theme.OnAccent : Theme.Text, StringAlignment.Center);
             }
         }
     }
@@ -321,7 +320,7 @@ sealed class MacroListPanel : Control
         using (var brush = new SolidBrush(Theme.Text))
         using (var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, FormatFlags = StringFormatFlags.NoWrap })
         {
-            g.DrawString(text ?? "", font, brush, new RectangleF(textX, y, width - textX, ItemHeight), sf);
+            Marquee.Draw(g, this, new Rectangle(textX, y, width - textX - 6, ItemHeight), text ?? "", font, Theme.Text, StringAlignment.Near);
         }
     }
 
