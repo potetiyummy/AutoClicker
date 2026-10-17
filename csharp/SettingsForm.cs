@@ -19,7 +19,7 @@ sealed class SettingsForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(360, 200);
+        ClientSize = new Size(360, 232);
         HandleCreated += (s, e) => Native.SetDarkTitleBar(Handle, Theme.IsDark);
         Build();
     }
@@ -82,10 +82,29 @@ sealed class SettingsForm : Form
             Checked = Theme.IsDark,
         };
         _darkBox.CheckedChanged += (s, e) => BeginInvoke(new Action(() => ChangeTheme(_darkBox.Checked)));
+
+        var speedLabel = Ui.Label(Strings.T("scroll_speed"), 12);
+        speedLabel.Location = new Point(24, 136);
+        Controls.Add(speedLabel);
+
+        var speedBox = new NumericUpDown
+        {
+            Minimum = 10,
+            Maximum = 200,
+            Increment = 10,
+            Value = (decimal)Marquee.Speed,
+            BackColor = Theme.Entry,
+            ForeColor = Theme.Text,
+            Font = Theme.Ui(11),
+            Location = new Point(200, 132),
+            Width = 100,
+        };
+        speedBox.ValueChanged += (s, e) => Strings.SaveScrollSpeed((int)speedBox.Value);
+        Controls.Add(speedBox);
         Controls.Add(_darkBox);
 
         var close = Ui.Button(Strings.T("close"), 12, true, null, 120, 30);
-        close.Location = new Point((ClientSize.Width - 120) / 2, 144);
+        close.Location = new Point((ClientSize.Width - 120) / 2, 184);
         close.Click += (s, e) => Close();
         Controls.Add(close);
         CancelButton = close;

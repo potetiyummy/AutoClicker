@@ -51,6 +51,7 @@ static class Strings
         Lang = SystemMode ? (SystemLang() ?? DefaultLang) : saved;
         _table = LoadTable(Lang);
         Theme.IsDark = ReadConfigValue("THEME") == "dark";
+        Marquee.Speed = ReadScrollSpeed();
     }
 
     // Windows の表示言語に対応する言語コード。対応していない場合は null
@@ -161,6 +162,23 @@ static class Strings
     static void SaveLanguage(string lang)
     {
         WriteConfigValue("LANGUAGE", lang == null ? "None" : $"\"{lang}\"");
+    }
+
+    // スクロール速度（px/秒）。既定は 40。10〜200 の範囲に収める
+    const int DefaultScrollSpeed = 40;
+
+    public static int ReadScrollSpeed()
+    {
+        return int.TryParse(ReadConfigValue("SCROLL_SPEED"), out int speed)
+            ? Math.Max(10, Math.Min(200, speed))
+            : DefaultScrollSpeed;
+    }
+
+    // 既定の速度のときは設定行を消す（ダークモードと同じ扱い）
+    public static void SaveScrollSpeed(int speed)
+    {
+        Marquee.Speed = speed;
+        WriteConfigValue("SCROLL_SPEED", speed == DefaultScrollSpeed ? null : $"\"{speed}\"");
     }
 
     // ダークテーマを保存する。ライト（既定）のときは設定行を消す

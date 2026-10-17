@@ -8,7 +8,7 @@ using System.Windows.Forms;
 static class Marquee
 {
     const int HoldMs = 2000;      // 端で止まる時間
-    const float SpeedPxPerSec = 40f;
+    public static float Speed = 40f;
     const int TickMs = 50;
 
     static readonly HashSet<Control> _owners = new HashSet<Control>();
@@ -38,11 +38,11 @@ static class Marquee
     // 現在の横方向のずれ（px）。overflow は文字の超過分
     static float Offset(float overflow)
     {
-        float scrollMs = overflow / SpeedPxPerSec * 1000f;
+        float scrollMs = overflow / Speed * 1000f;
         float cycle = HoldMs + scrollMs + HoldMs;
         float t = _clock.ElapsedMilliseconds % cycle;
         if (t < HoldMs) return 0;
-        if (t < HoldMs + scrollMs) return (t - HoldMs) / 1000f * SpeedPxPerSec;
+        if (t < HoldMs + scrollMs) return (t - HoldMs) / 1000f * Speed;
         if (t < HoldMs + scrollMs + HoldMs) return overflow;
         return 0;
     }

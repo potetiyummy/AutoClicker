@@ -9,8 +9,8 @@
     <AssemblyName>autoclicker</AssemblyName>
     <RootNamespace>AutoClicker</RootNamespace>
     <ApplicationIcon>..\app_icon.ico</ApplicationIcon>
-    <Version>1.10.10</Version>
-    <AssemblyVersion>1.10.10.0</AssemblyVersion>
+    <Version>1.10.11</Version>
+    <AssemblyVersion>1.10.11.0</AssemblyVersion>
     <Product>Auto Clicker</Product>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
