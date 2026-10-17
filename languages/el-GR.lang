@@ -83,3 +83,14 @@ cancel=Ακύρωση
 color_hsv=Απόχρωση,Κορεσμός,Φως
 color_rgb=Κόκκινο,Πράσινο,Μπλε
 color_hex=Δεκαεξαδ.
+repeat_count=Επαναλήψεις
+repeat_infinite=0 = άπειρες
+smart_pick=Έξυπνη λήψη
+smart_pick_wait=Πατήστε F9 για λήψη
+edit=Επεξεργασία
+duplicate=Αντιγραφή
+delete=Διαγραφή
+edit_value=Τιμή
+exec_speed=Ταχύτητα
+start_key=Πλήκτρο έναρξης
+key_press=Πατήστε ένα πλήκτρο

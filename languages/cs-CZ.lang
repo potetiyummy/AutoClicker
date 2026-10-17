@@ -83,3 +83,14 @@ cancel=Zrušit
 color_hsv=Odstín,Sytost,Jas
 color_rgb=Červená,Zelená,Modrá
 color_hex=Hex
+repeat_count=Počet opakování
+repeat_infinite=0 = nekonečně
+smart_pick=Chytré získání
+smart_pick_wait=Stiskněte F9 pro získání
+edit=Upravit
+duplicate=Duplikovat
+delete=Smazat
+edit_value=Hodnota
+exec_speed=Rychlost
+start_key=Klávesa startu
+key_press=Stiskněte klávesu

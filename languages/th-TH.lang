@@ -83,3 +83,14 @@ cancel=ยกเลิก
 color_hsv=เฉดสี,ความอิ่มตัว,ความสว่าง
 color_rgb=แดง,เขียว,น้ำเงิน
 color_hex=เลขฐานสิบหก
+repeat_count=จำนวนครั้ง
+repeat_infinite=0 = ไม่จำกัด
+smart_pick=เก็บพิกัดอัจฉริยะ
+smart_pick_wait=กด F9 เพื่อเก็บ
+edit=แก้ไข
+duplicate=ทำซ้ำ
+delete=ลบ
+edit_value=ค่า
+exec_speed=ความเร็ว
+start_key=ปุ่มเริ่ม
+key_press=กดปุ่ม

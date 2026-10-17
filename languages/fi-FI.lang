@@ -83,3 +83,14 @@ cancel=Peruuta
 color_hsv=Sävy,Kylläis,Kirkkaus
 color_rgb=Punainen,Vihreä,Sininen
 color_hex=Heksa
+repeat_count=Toistot
+repeat_infinite=0 = rajaton
+smart_pick=Älykäs haku
+smart_pick_wait=Paina F9 hakeaksesi
+edit=Muokkaa
+duplicate=Kopioi
+delete=Poista
+edit_value=Arvo
+exec_speed=Nopeus
+start_key=Aloitusnäppäin
+key_press=Paina näppäintä

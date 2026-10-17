@@ -83,3 +83,14 @@ cancel=İptal
 color_hsv=Ton,Doygun,Parlak
 color_rgb=Kırmızı,Yeşil,Mavi
 color_hex=Hex
+repeat_count=Tekrar sayısı
+repeat_infinite=0 = sınırsız
+smart_pick=Akıllı alma
+smart_pick_wait=Almak için F9'a basın
+edit=Düzenle
+duplicate=Çoğalt
+delete=Sil
+edit_value=Değer
+exec_speed=Hız
+start_key=Başlatma tuşu
+key_press=Bir tuşa basın

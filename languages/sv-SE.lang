@@ -83,3 +83,14 @@ cancel=Avbryt
 color_hsv=Nyans,Mättn,Ljushet
 color_rgb=Röd,Grön,Blå
 color_hex=Hex
+repeat_count=Upprepningar
+repeat_infinite=0 = oändligt
+smart_pick=Smart hämtning
+smart_pick_wait=Tryck F9 för att hämta
+edit=Redigera
+duplicate=Duplicera
+delete=Ta bort
+edit_value=Värde
+exec_speed=Hastighet
+start_key=Startknapp
+key_press=Tryck en tangent

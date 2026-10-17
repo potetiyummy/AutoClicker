@@ -83,3 +83,14 @@ cancel=Отмена
 color_hsv=Тон,Насыщ,Яркость
 color_rgb=Красный,Зелёный,Синий
 color_hex=HEX
+repeat_count=Повторы
+repeat_infinite=0 = бесконечно
+smart_pick=Умный захват
+smart_pick_wait=F9 — захват
+edit=Изменить
+duplicate=Дублировать
+delete=Удалить
+edit_value=Значение
+exec_speed=Скорость
+start_key=Клавиша запуска
+key_press=Нажмите клавишу

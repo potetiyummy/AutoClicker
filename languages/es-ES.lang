@@ -83,3 +83,14 @@ cancel=Cancelar
 color_hsv=Matiz,Sat,Brillo
 color_rgb=Rojo,Verde,Azul
 color_hex=Hex
+repeat_count=Repeticiones
+repeat_infinite=0 = infinito
+smart_pick=Captura inteligente
+smart_pick_wait=Pulse F9 para capturar
+edit=Editar
+duplicate=Duplicar
+delete=Eliminar
+edit_value=Valor
+exec_speed=Velocidad
+start_key=Tecla de inicio
+key_press=Pulse una tecla

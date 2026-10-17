@@ -83,3 +83,14 @@ cancel=Hủy
 color_hsv=Sắc độ,Bão hòa,Độ sáng
 color_rgb=Đỏ,Lục,Lam
 color_hex=Hex
+repeat_count=Số lần lặp
+repeat_infinite=0 = vô hạn
+smart_pick=Lấy tọa độ thông minh
+smart_pick_wait=Nhấn F9 để lấy
+edit=Sửa
+duplicate=Nhân bản
+delete=Xóa
+edit_value=Giá trị
+exec_speed=Tốc độ
+start_key=Phím bắt đầu
+key_press=Nhấn một phím

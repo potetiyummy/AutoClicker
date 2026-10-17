@@ -83,3 +83,14 @@ cancel=Avbryt
 color_hsv=Fargetone,Metn,Lysstyrke
 color_rgb=Rød,Grønn,Blå
 color_hex=Hex
+repeat_count=Gjentakelser
+repeat_infinite=0 = uendelig
+smart_pick=Smart henting
+smart_pick_wait=Trykk F9 for å hente
+edit=Rediger
+duplicate=Dupliser
+delete=Slett
+edit_value=Verdi
+exec_speed=Hastighet
+start_key=Starttast
+key_press=Trykk en tast

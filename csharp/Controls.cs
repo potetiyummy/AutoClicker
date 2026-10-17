@@ -324,11 +324,45 @@ sealed class MacroListPanel : Control
         }
     }
 
+    // 右クリックで「編集・複製・削除」を出す。ダブルクリックは編集
+    public event Action<int> EditRequested;
+    public event Action<int> DuplicateRequested;
+    public event Action<int> DeleteRequested;
+
+    int ItemAt(Point p)
+    {
+        int index = IndexAt(p.Y - Pad);
+        int count;
+        lock (_engine.Sync) count = _engine.Actions.Count;
+        return index >= 0 && index < count ? index : -1;
+    }
+
+    void ShowMenu(Point at)
+    {
+        int index = ItemAt(at);
+        if (index < 0) return;
+
+        var menu = new ContextMenuStrip();
+        menu.Items.Add(Strings.T("edit"), null, (s, e) => EditRequested?.Invoke(index));
+        menu.Items.Add(Strings.T("duplicate"), null, (s, e) => DuplicateRequested?.Invoke(index));
+        menu.Items.Add(Strings.T("delete"), null, (s, e) => DeleteRequested?.Invoke(index));
+        menu.Show(this, at);
+    }
+
+    protected override void OnMouseDoubleClick(MouseEventArgs e)
+    {
+        base.OnMouseDoubleClick(e);
+        if (e.Button != MouseButtons.Left) return;
+        int index = ItemAt(e.Location);
+        if (index >= 0) EditRequested?.Invoke(index);
+    }
+
     int IndexAt(int localY) => localY < 0 ? -1 : localY / ItemHeight;
 
     protected override void OnMouseDown(MouseEventArgs e)
     {
         base.OnMouseDown(e);
+        if (e.Button == MouseButtons.Right) { ShowMenu(e.Location); return; }
         if (e.Button != MouseButtons.Left) return;
         int y = e.Y - Pad;
         int index = IndexAt(y);

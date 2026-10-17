@@ -83,3 +83,14 @@ cancel=Annulla
 color_hsv=Tinta,Sat,Lumin
 color_rgb=Rosso,Verde,Blu
 color_hex=Esadecimale
+repeat_count=Ripetizioni
+repeat_infinite=0 = infinito
+smart_pick=Cattura intelligente
+smart_pick_wait=Premi F9 per catturare
+edit=Modifica
+duplicate=Duplica
+delete=Elimina
+edit_value=Valore
+exec_speed=Velocità
+start_key=Tasto di avvio
+key_press=Premi un tasto

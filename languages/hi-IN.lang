@@ -83,3 +83,14 @@ cancel=रद्द करें
 color_hsv=रंगत,संतृप्ति,चमक
 color_rgb=लाल,हरा,नीला
 color_hex=हेक्स
+repeat_count=दोहराव
+repeat_infinite=0 = असीमित
+smart_pick=स्मार्ट पिक
+smart_pick_wait=पिक के लिए F9 दबाएँ
+edit=संपादित करें
+duplicate=डुप्लिकेट
+delete=हटाएँ
+edit_value=मान
+exec_speed=गति
+start_key=स्टार्ट कुंजी
+key_press=कोई कुंजी दबाएँ

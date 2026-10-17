@@ -83,3 +83,14 @@ cancel=Annuler
 color_hsv=Teinte,Sat,Lumin
 color_rgb=Rouge,Vert,Bleu
 color_hex=Hex
+repeat_count=Répétitions
+repeat_infinite=0 = infini
+smart_pick=Capture intelligente
+smart_pick_wait=Appuyez sur F9 pour capturer
+edit=Modifier
+duplicate=Dupliquer
+delete=Supprimer
+edit_value=Valeur
+exec_speed=Vitesse
+start_key=Touche de démarrage
+key_press=Appuyez sur une touche

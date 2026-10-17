@@ -41,6 +41,20 @@ sealed class MacroEngine
 
     public bool Active => _active;
 
+    // 繰り返し回数（0 は無限）。UI への通知は UiHost の UI スレッドで行う
+    public int RepeatCount { get; set; }
+    public Control UiHost { get; set; }
+
+    // 実行速度（1.0 が標準）。内部の待ち時間だけを割る（待機や長押しの時間は変えない）
+    public static double SpeedFactor { get; set; } = 1.0;
+
+    int _cycles;
+
+    static void Wait(int ms)
+    {
+        if (ms > 0) Thread.Sleep((int)Math.Max(1, ms / SpeedFactor));
+    }
+
     public MacroEngine()
     {
         var thread = new Thread(Loop) { IsBackground = true };
@@ -72,6 +86,7 @@ sealed class MacroEngine
     void SetActive(bool value)
     {
         _active = value;
+        if (value) _cycles = 0;
         StateChanged?.Invoke(value);
     }
 
@@ -121,11 +136,23 @@ sealed class MacroEngine
             MacroAction[] snapshot;
             lock (Sync) snapshot = Actions.ToArray();
 
+            bool finished = true;
             foreach (var act in snapshot)
             {
-                if (!_active) break;
+                if (!_active)
+                {
+                    finished = false;
+                    break;
+                }
                 Run(act);
-                Thread.Sleep(100);
+                Wait(100);
+            }
+
+            // 1周が終わったら回数を数え、指定の回数に達したら止める（0 は無限）
+            if (finished && _active && RepeatCount > 0 && ++_cycles >= RepeatCount)
+            {
+                _active = false;
+                UiHost?.BeginInvoke(new Action(() => StateChanged?.Invoke(false)));
             }
         }
     }
@@ -136,35 +163,35 @@ sealed class MacroEngine
         {
             case "click":
                 MoveTo(act.X ?? 0, act.Y ?? 0);
-                Thread.Sleep(50);
+                Wait(50);
                 Click(IsRight(act), down: true);
                 Click(IsRight(act), down: false);
                 break;
 
             case "drag":
                 MoveTo(act.Sx ?? 0, act.Sy ?? 0);
-                Thread.Sleep(50);
+                Wait(50);
                 Click(IsRight(act), down: true);
-                Thread.Sleep(50);
+                Wait(50);
                 foreach (var wp in act.Waypoints ?? new List<int[]>())
                 {
                     MoveTo(wp[0], wp[1]);
-                    Thread.Sleep(100);
+                    Wait(100);
                 }
                 MoveTo(act.Ex ?? 0, act.Ey ?? 0);
-                Thread.Sleep(50);
+                Wait(50);
                 Click(IsRight(act), down: false);
                 break;
 
             case "hold":
                 MoveTo(act.X ?? 0, act.Y ?? 0);
-                Thread.Sleep(50);
+                Wait(50);
                 Click(IsRight(act), down: true);
                 var start = Stopwatch.StartNew();
                 foreach (var wp in act.Waypoints ?? new List<int[]>())
                 {
                     MoveTo(wp[0], wp[1]);
-                    Thread.Sleep(100);
+                    Wait(100);
                 }
                 // 合計の長押し時間になるまで待ってから離す
                 int remaining = (act.Duration ?? 0) - (int)start.ElapsedMilliseconds;
@@ -269,7 +296,7 @@ sealed class MacroEngine
         if (!TryParseHotkey(value, out List<ushort> keys)) return;
 
         foreach (ushort k in keys) SendKey(k, up: false);
-        Thread.Sleep(50);
+        Wait(50);
         for (int i = keys.Count - 1; i >= 0; i--) SendKey(keys[i], up: true);
     }
 }

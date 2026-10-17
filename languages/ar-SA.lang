@@ -83,3 +83,14 @@ cancel=إلغاء
 color_hsv=اللون،التشبع،السطوع
 color_rgb=أحمر،أخضر،أزرق
 color_hex=سداسي
+repeat_count=عدد التكرار
+repeat_infinite=0 = لا نهائي
+smart_pick=التقاط ذكي
+smart_pick_wait=اضغط F9 للالتقاط
+edit=تعديل
+duplicate=تكرار
+delete=حذف
+edit_value=القيمة
+exec_speed=السرعة
+start_key=مفتاح البدء
+key_press=اضغط مفتاحًا

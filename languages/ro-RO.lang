@@ -83,3 +83,14 @@ cancel=Anulează
 color_hsv=Nuanță,Satur,Lumin
 color_rgb=Roșu,Verde,Albastru
 color_hex=Hex
+repeat_count=Repetări
+repeat_infinite=0 = infinit
+smart_pick=Preluare inteligentă
+smart_pick_wait=Apăsați F9 pentru preluare
+edit=Editează
+duplicate=Duplică
+delete=Șterge
+edit_value=Valoare
+exec_speed=Viteză
+start_key=Tasta de start
+key_press=Apăsați o tastă

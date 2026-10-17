@@ -15,6 +15,7 @@ static class Native
     public const int WH_KEYBOARD_LL = 13;
     public const int WM_KEYDOWN = 0x0100, WM_SYSKEYDOWN = 0x0104;
     public const int VK_F8 = 0x77;
+    public const int VK_F9 = 0x78;
 
     public const int EM_SETCUEBANNER = 0x1501;
 

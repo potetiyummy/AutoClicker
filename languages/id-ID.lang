@@ -83,3 +83,14 @@ cancel=Batal
 color_hsv=Rona,Saturasi,Kecerah
 color_rgb=Merah,Hijau,Biru
 color_hex=Hex
+repeat_count=Jumlah ulang
+repeat_infinite=0 = tanpa batas
+smart_pick=Ambil pintar
+smart_pick_wait=Tekan F9 untuk mengambil
+edit=Edit
+duplicate=Duplikat
+delete=Hapus
+edit_value=Nilai
+exec_speed=Kecepatan
+start_key=Tombol mulai
+key_press=Tekan tombol

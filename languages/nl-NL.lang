@@ -83,3 +83,14 @@ cancel=Annuleren
 color_hsv=Tint,Verz,Helderh
 color_rgb=Rood,Groen,Blauw
 color_hex=Hex
+repeat_count=Herhalingen
+repeat_infinite=0 = oneindig
+smart_pick=Slim ophalen
+smart_pick_wait=F9 om op te halen
+edit=Bewerken
+duplicate=Dupliceren
+delete=Verwijderen
+edit_value=Waarde
+exec_speed=Snelheid
+start_key=Startknop
+key_press=Druk op een toets

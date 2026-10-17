@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.10.14";
+    const string Version = "1.11";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -54,7 +54,9 @@ sealed class MainForm : Form
 
     SegmentedButton _cBtn, _dBtn, _dTarget, _hBtn, _kMode;
     TextBox _cX, _cY, _dX, _dY, _hX, _hY, _hDur, _hwX, _hwY, _kVal, _wDur;
-    Button _cPick, _dPick, _hPick, _hwPick;
+    Button _cPick, _cSmart, _dPick, _hPick, _hwPick;
+    bool _smartPickWaiting;   // 座標スマート取得の待機中（F9 で取得する）
+    int _repeatCount;         // 繰り返し回数（0 は無限）
 
     public MainForm()
     {
@@ -71,6 +73,7 @@ sealed class MainForm : Form
 
         _images = LoadImages();
         _engine.StateChanged += UpdateStatus;
+        _engine.UiHost = this;
 
         BuildUi();
 
@@ -149,6 +152,34 @@ sealed class MainForm : Form
         var loadBtn = Ui.Button(Strings.T("load_acf"), 12, true, null, 185, 28);
         loadBtn.Click += (s, e) => LoadAcf();
         Place(loadBtn, 215, 496);
+
+        // 繰り返し回数（0 は無限）
+        var repeatLabel = Ui.Label(Strings.T("repeat_count"), 12);
+        repeatLabel.Location = new Point(20, 540);
+        Controls.Add(repeatLabel);
+
+        var repeatBox = new NumericUpDown
+        {
+            Minimum = 0,
+            Maximum = 9999,
+            Value = _repeatCount,
+            BackColor = Theme.Entry,
+            ForeColor = Theme.Text,
+            Font = Theme.Ui(11),
+            Location = new Point(150, 536),
+            Width = 90,
+        };
+        repeatBox.ValueChanged += (s, e) =>
+        {
+            _repeatCount = (int)repeatBox.Value;
+            _engine.RepeatCount = _repeatCount;
+        };
+        Controls.Add(repeatBox);
+
+        var repeatHint = Ui.Label(Strings.T("repeat_infinite"), 10, false, Theme.Guide);
+        repeatHint.Location = new Point(250, 540);
+        Controls.Add(repeatHint);
+        _engine.RepeatCount = _repeatCount;
     }
 
     void BuildRightColumn()
@@ -156,6 +187,9 @@ sealed class MainForm : Form
         Place(Ui.Label(Strings.T("list_title"), 16, true, null, 380), 420, 58);
 
         _listPanel = new MacroListPanel(_engine, _images) { Location = new Point(420, 86), Size = new Size(380, 428) };
+        _listPanel.EditRequested += EditAction;
+        _listPanel.DuplicateRequested += DuplicateAction;
+        _listPanel.DeleteRequested += DeleteAction;
         Controls.Add(_listPanel);
 
         _statusLabel = Ui.Label(Strings.T("status_stopped"), 14, true, null, 300);
@@ -192,12 +226,14 @@ sealed class MainForm : Form
         _cY = Ui.Entry(13, 60); _cY.Text = "0";
         _cPick = Ui.Button(Strings.T("pick"), 12, false, Theme.PickBtn, 150, 28);
         _cPick.Click += (s, e) => StartPick("click");
+        _cSmart = Ui.Button(Strings.T(_smartPickWaiting ? "smart_pick_wait" : "smart_pick"), 12, false, _smartPickWaiting ? Theme.Countdown : Theme.PickBtn, 200, 28);
+        _cSmart.Click += (s, e) => ToggleSmartPick();
         var add = Ui.Button(Strings.T("add_click"), 13, true, null, 170, 28);
         add.Click += (s, e) => AddClick();
 
         int y = Ui.Row(p, 10, 10, _cBtn);
         y = Ui.Row(p, y, 10, _cX, _cY);
-        y = Ui.Row(p, y, 10, _cPick);
+        y = Ui.Row(p, y, 10, _cPick, _cSmart);
         Ui.Single(p, y + 10, 0, add);
     }
 
@@ -407,6 +443,48 @@ sealed class MainForm : Form
         RefreshList();
     }
 
+    // アクションの編集（ダブルクリックや右クリックの「編集」）
+    void EditAction(int index)
+    {
+        MacroAction source;
+        lock (_engine.Sync)
+        {
+            if (index < 0 || index >= _engine.Actions.Count) return;
+            source = _engine.Actions[index];
+        }
+
+        using (var dlg = new EditActionForm(source))
+        {
+            if (dlg.ShowDialog(this) != DialogResult.OK) return;
+            lock (_engine.Sync)
+            {
+                if (index < _engine.Actions.Count) _engine.Actions[index] = dlg.Result;
+            }
+        }
+        RefreshList();
+    }
+
+    // 複製：同じ内容のアクションを、直後に追加する
+    void DuplicateAction(int index)
+    {
+        lock (_engine.Sync)
+        {
+            if (index < 0 || index >= _engine.Actions.Count) return;
+            var copy = JsonSerializer.Deserialize<MacroAction>(JsonSerializer.Serialize(_engine.Actions[index]));
+            _engine.Actions.Insert(index + 1, copy);
+        }
+        RefreshList();
+    }
+
+    void DeleteAction(int index)
+    {
+        lock (_engine.Sync)
+        {
+            if (index >= 0 && index < _engine.Actions.Count) _engine.Actions.RemoveAt(index);
+        }
+        RefreshList();
+    }
+
     void RefreshList() => _listPanel?.Invalidate();
 
     void UpdateWaypointDisplay()
@@ -452,6 +530,30 @@ sealed class MainForm : Form
             case "hold": return (_hPick, "pick");
             default: return (_hwPick, "pick_short");
         }
+    }
+
+    // 座標スマート取得：押すと待機に入り、F9 を押した瞬間のマウス位置を X・Y に入れる。もう一度押すと取り消す
+    void ToggleSmartPick()
+    {
+        _smartPickWaiting = !_smartPickWaiting;
+        UpdateSmartPickButton();
+    }
+
+    void UpdateSmartPickButton()
+    {
+        if (_cSmart == null) return;
+        _cSmart.Text = Strings.T(_smartPickWaiting ? "smart_pick_wait" : "smart_pick");
+        _cSmart.BackColor = _smartPickWaiting ? Theme.Countdown : Theme.PickBtn;
+    }
+
+    void CaptureSmartPick()
+    {
+        if (!_smartPickWaiting) return;
+        var pos = System.Windows.Forms.Cursor.Position;
+        SetText(_cX, pos.X);
+        SetText(_cY, pos.Y);
+        _smartPickWaiting = false;
+        UpdateSmartPickButton();
     }
 
     void StartPick(string tab)
@@ -660,11 +762,12 @@ sealed class MainForm : Form
 
     IntPtr OnKeyboardHook(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        // F8 で実行/停止（キーは他のアプリにも届く）
+        // 開始キー（既定は F8）で実行/停止、F9 で座標スマート取得（キーは他のアプリにも届く）
         if (nCode >= 0 && (wParam == (IntPtr)Native.WM_KEYDOWN || wParam == (IntPtr)Native.WM_SYSKEYDOWN))
         {
             int vkCode = Marshal.ReadInt32(lParam);
-            if (vkCode == Native.VK_F8) BeginInvoke(new Action(() => _engine.Toggle(this)));
+            if (vkCode == Strings.StartKey) BeginInvoke(new Action(() => _engine.Toggle(this)));
+            else if (vkCode == Native.VK_F9 && _smartPickWaiting) BeginInvoke(new Action(CaptureSmartPick));
         }
         return Native.CallNextHookEx(_hook, nCode, wParam, lParam);
     }

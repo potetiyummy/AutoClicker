@@ -83,3 +83,14 @@ cancel=Abbrechen
 color_hsv=Ton,Sätt,Helligk
 color_rgb=Rot,Grün,Blau
 color_hex=Hex
+repeat_count=Wiederholungen
+repeat_infinite=0 = unendlich
+smart_pick=Intelligente Erfassung
+smart_pick_wait=F9 zum Erfassen drücken
+edit=Bearbeiten
+duplicate=Duplizieren
+delete=Löschen
+edit_value=Wert
+exec_speed=Geschwindigkeit
+start_key=Starttaste
+key_press=Taste drücken

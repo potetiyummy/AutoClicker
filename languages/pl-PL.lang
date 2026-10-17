@@ -83,3 +83,14 @@ cancel=Anuluj
 color_hsv=Odcień,Nasyc,Jasność
 color_rgb=Czerwony,Zielony,Niebieski
 color_hex=Hex
+repeat_count=Powtórzenia
+repeat_infinite=0 = bez końca
+smart_pick=Inteligentne pobieranie
+smart_pick_wait=Naciśnij F9, aby pobrać
+edit=Edytuj
+duplicate=Duplikuj
+delete=Usuń
+edit_value=Wartość
+exec_speed=Prędkość
+start_key=Klawisz startu
+key_press=Naciśnij klawisz

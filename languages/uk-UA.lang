@@ -83,3 +83,14 @@ cancel=Скасувати
 color_hsv=Відтінок,Насич,Яскравість
 color_rgb=Червоний,Зелений,Синій
 color_hex=HEX
+repeat_count=Повтори
+repeat_infinite=0 = нескінченно
+smart_pick=Розумне отримання
+smart_pick_wait=F9 — отримати
+edit=Редагувати
+duplicate=Дублювати
+delete=Видалити
+edit_value=Значення
+exec_speed=Швидкість
+start_key=Клавіша старту
+key_press=Натисніть клавішу

@@ -83,3 +83,14 @@ cancel=Mégse
 color_hsv=Árnyalat,Telít,Fényerő
 color_rgb=Vörös,Zöld,Kék
 color_hex=Hex
+repeat_count=Ismétlések
+repeat_infinite=0 = végtelen
+smart_pick=Okos lekérés
+smart_pick_wait=F9 a lekéréshez
+edit=Szerkesztés
+duplicate=Másolás
+delete=Törlés
+edit_value=Érték
+exec_speed=Sebesség
+start_key=Indító billentyű
+key_press=Nyomjon billentyűt

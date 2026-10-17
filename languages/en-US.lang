@@ -83,3 +83,14 @@ cancel=Cancel
 color_hsv=Hue, Sat, Bright
 color_rgb=Red, Green, Blue
 color_hex=Hex
+repeat_count=Repeat count
+repeat_infinite=0 = endless
+smart_pick=Smart pick
+smart_pick_wait=Press F9 to pick
+edit=Edit
+duplicate=Duplicate
+delete=Delete
+edit_value=Value
+exec_speed=Speed
+start_key=Start key
+key_press=Press a key

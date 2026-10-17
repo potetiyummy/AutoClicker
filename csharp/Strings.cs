@@ -54,6 +54,7 @@ static class Strings
         Theme.IsDark = ReadConfigValue("THEME") == "dark";
         Marquee.Speed = ReadScrollSpeed();
         LoadAccent();
+        LoadExecution();
     }
 
     // Windows の表示言語に対応する言語コード。対応していない場合は null
@@ -207,6 +208,37 @@ static class Strings
         Theme.CustomAccentColor = color;
         WriteConfigValue("ACCENT_MODE", custom ? "\"custom\"" : null);
         WriteConfigValue("ACCENT_COLOR", custom ? $"\"#{color.R:X2}{color.G:X2}{color.B:X2}\"" : null);
+    }
+
+    // 実行速度（%）。既定は 100。50〜200 の範囲
+    const int DefaultSpeedPercent = 100;
+
+    public static int SpeedPercent { get; private set; } = DefaultSpeedPercent;
+
+    // 開始・停止のキー（仮想キーコード）。既定は F8（119）
+    const int DefaultStartKey = 0x77;
+
+    public static int StartKey { get; private set; } = DefaultStartKey;
+
+    static void LoadExecution()
+    {
+        SpeedPercent = int.TryParse(ReadConfigValue("SPEED_PERCENT"), out int p) ? Math.Max(50, Math.Min(200, p)) : DefaultSpeedPercent;
+        MacroEngine.SpeedFactor = SpeedPercent / 100.0;
+        StartKey = int.TryParse(ReadConfigValue("START_KEY"), out int k) && k > 0 && k < 256 ? k : DefaultStartKey;
+    }
+
+    // 既定の値のときは設定行を消す（ダークモードなどと同じ扱い）
+    public static void SaveSpeedPercent(int percent)
+    {
+        SpeedPercent = percent;
+        MacroEngine.SpeedFactor = percent / 100.0;
+        WriteConfigValue("SPEED_PERCENT", percent == DefaultSpeedPercent ? null : $"\"{percent}\"");
+    }
+
+    public static void SaveStartKey(int vk)
+    {
+        StartKey = vk;
+        WriteConfigValue("START_KEY", vk == DefaultStartKey ? null : $"\"{vk}\"");
     }
 
     // ダークテーマを保存する。ライト（既定）のときは設定行を消す

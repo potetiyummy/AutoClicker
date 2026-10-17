@@ -10,6 +10,7 @@ sealed class SettingsForm : Form
     readonly MainForm _owner;
     ComboBox _langBox;
     MarqueeCheckBox _darkBox;
+    bool _waitingKey;   // 開始キーを押して変える待ち
 
     public SettingsForm(MainForm owner)
     {
@@ -19,7 +20,16 @@ sealed class SettingsForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(360, 336);
+        ClientSize = new Size(360, 432);
+        KeyPreview = true;
+        KeyDown += (s, e) =>
+        {
+            if (!_waitingKey) return;
+            e.SuppressKeyPress = true;
+            _waitingKey = false;
+            if (e.KeyCode != Keys.Escape) Strings.SaveStartKey(e.KeyValue);
+            BeginInvoke(new Action(Build));
+        };
         HandleCreated += (s, e) => Native.SetDarkTitleBar(Handle, Theme.IsDark);
         Build();
     }
@@ -164,8 +174,42 @@ sealed class SettingsForm : Form
         }
         Controls.Add(_darkBox);
 
+        // 実行速度（50〜200%）
+        var speedRow = Ui.Label(Strings.T("exec_speed"), 12);
+        speedRow.Location = new Point(24, 300);
+        Controls.Add(speedRow);
+
+        var execBox = new NumericUpDown
+        {
+            Minimum = 50,
+            Maximum = 200,
+            Increment = 10,
+            Value = Strings.SpeedPercent,
+            BackColor = Theme.Entry,
+            ForeColor = Theme.Text,
+            Font = Theme.Ui(11),
+            Location = new Point(200, 296),
+            Width = 100,
+        };
+        execBox.ValueChanged += (s, e) => Strings.SaveSpeedPercent((int)execBox.Value);
+        Controls.Add(execBox);
+
+        // 開始・停止のキー（押したあとに、新しいキーを押して変える）
+        var keyLabel = Ui.Label(Strings.T("start_key"), 12);
+        keyLabel.Location = new Point(24, 340);
+        Controls.Add(keyLabel);
+
+        var keyBtn = Ui.Button(_waitingKey ? Strings.T("key_press") : ((Keys)Strings.StartKey).ToString(), 11, false, Theme.PickBtn, 140, 28);
+        keyBtn.Location = new Point(200, 336);
+        keyBtn.Click += (s, e) => BeginInvoke(new Action(() =>
+        {
+            _waitingKey = !_waitingKey;
+            Build();
+        }));
+        Controls.Add(keyBtn);
+
         var close = Ui.Button(Strings.T("close"), 12, true, null, 120, 30);
-        close.Location = new Point((ClientSize.Width - 120) / 2, 292);
+        close.Location = new Point((ClientSize.Width - 120) / 2, 388);
         close.Click += (s, e) => Close();
         Controls.Add(close);
         CancelButton = close;
