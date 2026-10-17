@@ -118,7 +118,7 @@ sealed class MarqueeLabel : Label
             return;
         }
 
-        e.Graphics.Clear(Parent?.BackColor ?? Theme.Window);
+        e.Graphics.Clear(BackColor.A == 0 ? (Parent?.BackColor ?? Theme.Window) : BackColor);
         Marquee.Draw(e.Graphics, this, new Rectangle(0, 0, ClientSize.Width, ClientSize.Height), Text, Font, ForeColor, StringAlignment.Near);
     }
 }

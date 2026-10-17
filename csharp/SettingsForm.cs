@@ -19,7 +19,7 @@ sealed class SettingsForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(360, 232);
+        ClientSize = new Size(360, 268);
         HandleCreated += (s, e) => Native.SetDarkTitleBar(Handle, Theme.IsDark);
         Build();
     }
@@ -101,10 +101,22 @@ sealed class SettingsForm : Form
         };
         speedBox.ValueChanged += (s, e) => Strings.SaveScrollSpeed((int)speedBox.Value);
         Controls.Add(speedBox);
+
+        // スクロール速度の確認用。速度を変えると、この文字の流れ方も変わる
+        var preview = new MarqueeLabel
+        {
+            Text = Strings.T("preview_text"),
+            Font = Theme.Ui(11),
+            ForeColor = Theme.Text,
+            BackColor = Theme.Entry,
+            Location = new Point(24, 172),
+            Size = new Size(312, 28),
+        };
+        Controls.Add(preview);
         Controls.Add(_darkBox);
 
         var close = Ui.Button(Strings.T("close"), 12, true, null, 120, 30);
-        close.Location = new Point((ClientSize.Width - 120) / 2, 184);
+        close.Location = new Point((ClientSize.Width - 120) / 2, 220);
         close.Click += (s, e) => Close();
         Controls.Add(close);
         CancelButton = close;
