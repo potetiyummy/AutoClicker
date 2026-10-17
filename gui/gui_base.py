@@ -21,7 +21,7 @@ class AutoClickerApp(ctk.CTk):
     def __init__(self, engine):
         super().__init__()
         self.engine = engine
-        self.title("Auto Clicker v1.9.5")
+        self.title("Auto Clicker v1.9.6")
         
         # ウィンドウ用アイコン自動絶対パス指定
         icon_name = "app_icon.ico"

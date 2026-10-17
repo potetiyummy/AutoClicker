@@ -52,7 +52,9 @@ def _load_table(lang):
                 table[key.strip()] = value.strip().replace("\\n", "\n")
     return table
 
-CONFIG_PATH = os.path.join(_base_dir(), "config.py")
+# 設定ファイルは exe の隣に置く（onefile 版は一時フォルダが毎回消えるため）
+_config_dir = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else _base_dir()
+CONFIG_PATH = os.path.join(_config_dir, "config.py")
 
 def _saved_language():
     """config.py に保存された言語。ファイルが無い場合（クローン直後など）は None"""

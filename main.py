@@ -1,6 +1,12 @@
 import os
 import shutil
+import sys
 import threading
+
+# exe 版では exe の隣の config.py を読めるように、そのフォルダを検索パスの先頭に加える
+if getattr(sys, 'frozen', False):
+    sys.path.insert(0, os.path.dirname(sys.executable))
+
 from pynput.keyboard import Listener, Key
 from engine import MacroEngine
 from gui import AutoClickerApp
