@@ -3,17 +3,17 @@ using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
 
-// 起動用の exe。Program Files\AutoClicker\dll\AutoClicker.dll を読み込んで、本体を起動する
+// 起動用の exe。自分と同じフォルダにある AutoClicker.dll を読み込んで、本体を起動する
 static class LauncherProgram
 {
     [STAThread]
     static void Main()
     {
-        string dll = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "AutoClicker", "dll", "AutoClicker.dll");
+        string dll = Path.Combine(AppContext.BaseDirectory, "AutoClicker.dll");
         if (!File.Exists(dll))
         {
             MessageBox.Show(
-                "AutoClicker.dll が見つかりません。\n\n" + dll + "\n\nインストーラーで、本体をインストールしてから起動してください。",
+                "AutoClicker.dll が見つかりません。\n\n" + dll + "\n\nexe と同じフォルダに AutoClicker.dll を置いてから起動してください。",
                 "AutoClicker", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
