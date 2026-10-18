@@ -199,7 +199,8 @@ sealed class ActionFields
     // 種類を選んで、その入力欄を作る。source があれば、その値を入れる
     public void Show(string type, MacroAction source)
     {
-        foreach (var c in _bRow)
+        // 前の種類の入力欄を、すべて消してから作り直す
+        foreach (Control c in _host.Controls.Cast<Control>().ToList())
         {
             _host.Controls.Remove(c);
             c.Dispose();
