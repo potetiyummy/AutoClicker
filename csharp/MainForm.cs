@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.12.1";
+    const string Version = "1.12.2";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -354,7 +354,6 @@ sealed class MainForm : Form
             Width = 200,
         };
         _otherType.Items.Add(Strings.T("repeat"));
-        _otherType.Items.Add(Strings.T("repeat_end"));
         _otherType.SelectedIndex = 0;
 
         _repeatPropLabel = Ui.Label(Strings.T("repeat_count_label"), 12);
@@ -369,12 +368,15 @@ sealed class MainForm : Form
             Width = 100,
         };
         var add = Ui.Button(Strings.T("repeat_add"), 13, true, null, 200, 28);
+        // 「繰り返す」を追加すると、対応する「繰り返しの終了」も続けて追加する
         add.Click += (s, e) =>
         {
-            if (_otherType.SelectedIndex == 0)
-                AddAction(new MacroAction { Type = "repeat", Count = (int)_repeatBlockBox.Value });
-            else
-                AddAction(new MacroAction { Type = "repeat_end" });
+            lock (_engine.Sync)
+            {
+                _engine.Actions.Add(new MacroAction { Type = "repeat", Count = (int)_repeatBlockBox.Value });
+                _engine.Actions.Add(new MacroAction { Type = "repeat_end" });
+            }
+            RefreshList();
         };
 
         // 種類によって、プロパティの欄を出し分ける（終了にはプロパティがない）
