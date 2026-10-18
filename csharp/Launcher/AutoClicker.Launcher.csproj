@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- 起動用の exe。どこに置いてもよい。本体の dll は Program Files\AutoClicker\dll から読む -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>autoclicker</AssemblyName>
+    <RootNamespace>AutoClicker.Launcher</RootNamespace>
+    <ApplicationIcon>..\..\app_icon.ico</ApplicationIcon>
+    <Version>1.14.0</Version>
+    <AssemblyVersion>1.14.0.0</AssemblyVersion>
+    <Product>Auto Clicker</Product>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+</Project>

@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-static class Program
+// 起動の入口。exe（Launcher）から、この関数を呼び出して起動する
+public static class AutoClickerEntry
 {
     static readonly string LogPath = Path.Combine(Path.GetTempPath(), "autoclicker_error.log");
 
-    [STAThread]
-    static void Main()
+    public static void Run()
     {
         // 予期しない例外はログに残す（落ちた原因を後から確認できるように）
         Application.ThreadException += (s, e) => Log(e.Exception);

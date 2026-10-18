@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- インストーラー。本体の dll と、起動用の exe を Program Files\AutoClicker に配置する -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>AutoClicker-Installer</AssemblyName>
+    <RootNamespace>AutoClicker.Installer</RootNamespace>
+    <ApplicationIcon>..\..\app_icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>1.14.0</Version>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <!-- 配置するファイル（PayloadDir は packaging スクリプトが指定する） -->
+  <ItemGroup>
+    <EmbeddedResource Include="$(PayloadDir)\AutoClicker.dll" LogicalName="AutoClicker.dll" />
+    <EmbeddedResource Include="$(PayloadDir)\autoclicker.exe" LogicalName="autoclicker.exe" />
+  </ItemGroup>
+
+</Project>
