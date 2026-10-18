@@ -9,8 +9,8 @@
     <Nullable>disable</Nullable>
     <AssemblyName>AutoClicker</AssemblyName>
     <RootNamespace>AutoClicker</RootNamespace>
-    <Version>1.14.1</Version>
-    <AssemblyVersion>1.14.1.0</AssemblyVersion>
+    <Version>1.14.2</Version>
+    <AssemblyVersion>1.14.2.0</AssemblyVersion>
     <Product>Auto Clicker</Product>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
