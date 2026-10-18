@@ -241,6 +241,20 @@ static class Strings
         WriteConfigValue("START_KEY", vk == DefaultStartKey ? null : $"\"{vk}\"");
     }
 
+    // 計算の種類（内部の名前と、表示する記号。代入・加算・減算・乗算・除算）
+    public static readonly string[] CalcOpKeys = { "set", "add", "sub", "mul", "div" };
+    public static readonly string[] CalcOpSymbols = { "=", "+", "−", "×", "÷" };
+
+    // 条件分岐の比べ方（内部の名前と、表示名の並び。表示名は言語ファイルの if_ops を「|」で区切ったもの）
+    public static readonly string[] IfOpKeys = { "eq", "neq", "gt", "lt", "ge", "le" };
+
+    public static string IfOpName(string op)
+    {
+        int index = Array.IndexOf(IfOpKeys, op ?? "eq");
+        string[] names = T("if_ops").Split('|');
+        return names[index < 0 || index >= names.Length ? 0 : index];
+    }
+
     // ダークテーマを保存する。ライト（既定）のときは設定行を消す
     public static void SaveTheme(bool dark)
     {

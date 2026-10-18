@@ -209,9 +209,10 @@ sealed class MacroListPanel : Control
         int current = 0;
         for (int i = 0; i < actions.Count; i++)
         {
-            if (actions[i].Type == "repeat_end" && current > 0) current--;
-            depths[i] = current;
-            if (actions[i].Type == "repeat") current++;
+            string t = actions[i].Type;
+            if ((t == "repeat_end" || t == "if_end") && current > 0) current--;
+            depths[i] = t == "else" && current > 0 ? current - 1 : current;
+            if (t == "repeat" || t == "if") current++;
         }
         return depths;
     }
@@ -255,6 +256,7 @@ sealed class MacroListPanel : Control
         List<MacroAction> actions;
         lock (_engine.Sync) actions = new List<MacroAction>(_engine.Actions);
         int[] depths = DepthsOf(actions);
+        _paintList = actions;
 
         int y = 0;
         for (int i = 0; i < actions.Count; i++)
@@ -288,6 +290,25 @@ sealed class MacroListPanel : Control
         }
     }
 
+    // 画面に出す値の名前（変数名、結果の参照、数値）。結果は、その項目の番号で表す
+    List<MacroAction> _paintList = new List<MacroAction>();
+
+    string Desc(ValueRef r)
+    {
+        if (r == null) return "";
+        switch (r.Kind)
+        {
+            case "var": return Strings.T("value_var", ("name", r.Name ?? ""));
+            case "res":
+                int idx = _paintList.FindIndex(a => a.Id == r.Ref);
+                return idx < 0 ? Strings.T("value_missing") : Strings.T("value_result", ("index", idx + 1), ("kind", ActionFields.TypeName(_paintList[idx].Type)));
+            default: return r.Text ?? "";
+        }
+    }
+
+    // 条件分岐の右の値（旧版の数値にも対応）
+    string DescRight(MacroAction a) => a.B != null ? Desc(a.B) : (a.Number ?? 0).ToString();
+
     void DrawItem(Graphics g, int index, MacroAction a, int depth, int y, int width, bool dragging)
     {
         string imgKey = null;
@@ -315,6 +336,39 @@ sealed class MacroListPanel : Control
             case "keyboard":
                 imgKey = a.Mode == "text" ? "text" : "hotkey";
                 text = Strings.T("list_keyboard", ("index", n), ("kind", Strings.T("keyboard")), ("mode", Strings.T(a.Mode)), ("value", a.Value ?? ""));
+                break;
+            case "if":
+                text = Strings.T("list_if", ("index", n), ("left", Desc(a.A)), ("right", DescRight(a)), ("op", Strings.IfOpName(a.Op)), ("current", Desc(a.A)), ("n", DescRight(a)));
+                break;
+            case "calc":
+                text = Strings.T("list_calc", ("index", n), ("op", Strings.T("op_" + (a.Op ?? "add"))), ("left", Desc(a.A)), ("right", Desc(a.B)));
+                break;
+            case "round":
+                text = Strings.T("list_round", ("index", n), ("left", Desc(a.A)), ("place", ActionFields.PlaceName(a.Place ?? 0)), ("mode", Strings.T("round_" + (a.RMode ?? "round"))));
+                break;
+            case "convert":
+                text = Strings.T("list_convert", ("index", n), ("left", Desc(a.A)), ("target", Strings.T("type_" + (a.Target ?? "string"))));
+                break;
+            case "input":
+                text = Strings.T("list_input", ("index", n), ("prompt", a.Prompt ?? ""));
+                break;
+            case "setvar":
+                text = Strings.T("list_setvar", ("index", n), ("var", a.Var ?? ""), ("left", Desc(a.A)));
+                break;
+            case "addvar":
+                text = Strings.T("list_addvar", ("index", n), ("var", a.Var ?? ""), ("left", Desc(a.A)));
+                break;
+            case "getvar":
+                text = Strings.T("list_getvar", ("index", n), ("var", a.Var ?? ""));
+                break;
+            case "cond":
+                text = Strings.T("list_cond", ("index", n), ("left", Desc(a.A)), ("op", Strings.IfOpName(a.Op)), ("right", Desc(a.B)));
+                break;
+            case "else":
+                text = Strings.T("list_else", ("index", n));
+                break;
+            case "if_end":
+                text = Strings.T("list_if_end", ("index", n));
                 break;
             case "repeat":
                 text = Strings.T("list_repeat", ("index", n), ("count", a.Count ?? 0));

@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.12.2";
+    const string Version = "1.13";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -57,9 +57,9 @@ sealed class MainForm : Form
     Button _cPick, _cSmart, _dPick, _hPick, _hwPick;
     bool _smartPickWaiting;   // 座標スマート取得の待機中（F9 で取得する）
     int _repeatCount;         // 繰り返し回数（0 は無限）
-    NumericUpDown _repeatBlockBox;   // 「○回繰り返す」の回数
-    ComboBox _otherType;             // その他：繰り返し / 繰り返しの終了
-    Label _repeatPropLabel;
+    ComboBox _otherType;             // その他：項目の種類
+    Panel _otherHost;                // その他：入力欄の置き場
+    ActionFields _otherFields;       // その他：入力欄
 
     public MainForm()
     {
@@ -341,7 +341,9 @@ sealed class MainForm : Form
         OnKeyboardModeChanged();
     }
 
-    // その他タブ：ドロップダウンで「繰り返し」か「繰り返しの終了」を選び、その種類の項目だけを出して追加する
+    // その他タブ：項目の種類を選ぶと、その種類に必要な入力欄を出す。追加ボタンで項目を追加する
+    static readonly string[] OtherTypes = { "repeat", "if", "calc", "round", "convert", "input", "setvar", "addvar", "getvar", "cond" };
+
     void BuildOtherPage(Panel p)
     {
         _otherType = new ComboBox
@@ -351,48 +353,47 @@ sealed class MainForm : Form
             BackColor = Theme.Entry,
             ForeColor = Theme.Text,
             Font = Theme.Ui(12),
-            Width = 200,
+            Width = 220,
         };
-        _otherType.Items.Add(Strings.T("repeat"));
+        foreach (var t in OtherTypes) _otherType.Items.Add(ActionFields.TypeName(t));
         _otherType.SelectedIndex = 0;
 
-        _repeatPropLabel = Ui.Label(Strings.T("repeat_count_label"), 12);
-        _repeatBlockBox = new NumericUpDown
-        {
-            Minimum = 1,
-            Maximum = 9999,
-            Value = 2,
-            BackColor = Theme.Entry,
-            ForeColor = Theme.Text,
-            Font = Theme.Ui(13),
-            Width = 100,
-        };
+        _otherHost = new Panel { Location = new Point(0, 64), Size = new Size(380, 200), BackColor = Theme.Frame };
+        _otherFields = new ActionFields(_otherHost, () => ActionFields.ChoicesFrom(SnapshotActions()), () => ActionFields.VarNamesFrom(SnapshotActions()));
+        _otherFields.Show(OtherTypes[0], null);
+
+        _otherType.SelectedIndexChanged += (s, e) => _otherFields.Show(OtherTypes[_otherType.SelectedIndex], null);
+
         var add = Ui.Button(Strings.T("repeat_add"), 13, true, null, 200, 28);
-        // 「繰り返す」を追加すると、対応する「繰り返しの終了」も続けて追加する
-        add.Click += (s, e) =>
-        {
-            lock (_engine.Sync)
-            {
-                _engine.Actions.Add(new MacroAction { Type = "repeat", Count = (int)_repeatBlockBox.Value });
-                _engine.Actions.Add(new MacroAction { Type = "repeat_end" });
-            }
-            RefreshList();
-        };
+        add.Click += (s, e) => AddOther();
 
-        // 種類によって、プロパティの欄を出し分ける（終了にはプロパティがない）
-        _otherType.SelectedIndexChanged += (s, e) => ShowOtherProperties();
-
-        int y = Ui.Row(p, 20, 16, _otherType);
-        y = Ui.Row(p, y, 16, _repeatPropLabel, _repeatBlockBox);
-        Ui.Single(p, y + 6, 0, add);
-        ShowOtherProperties();
+        int y = Ui.Row(p, 12, 0, _otherType);
+        p.Controls.Add(_otherHost);
+        _otherHost.Location = new Point(0, y + 8);
+        Ui.Single(p, y + 8 + _otherHost.Height + 8, 0, add);
     }
 
-    void ShowOtherProperties()
+    List<MacroAction> SnapshotActions()
     {
-        bool repeat = _otherType.SelectedIndex == 0;
-        _repeatPropLabel.Visible = repeat;
-        _repeatBlockBox.Visible = repeat;
+        lock (_engine.Sync) return new List<MacroAction>(_engine.Actions);
+    }
+
+    // 「繰り返す」「条件分岐」は、対応する終わりも続けて追加する
+    void AddOther()
+    {
+        string type = OtherTypes[_otherType.SelectedIndex];
+        var action = _otherFields.Read(null);
+        lock (_engine.Sync)
+        {
+            _engine.Actions.Add(action);
+            if (type == "repeat") _engine.Actions.Add(new MacroAction { Type = "repeat_end" });
+            if (type == "if")
+            {
+                _engine.Actions.Add(new MacroAction { Type = "else" });
+                _engine.Actions.Add(new MacroAction { Type = "if_end" });
+            }
+        }
+        RefreshList();
     }
 
     void BuildWaitPage(Panel p)
@@ -511,7 +512,7 @@ sealed class MainForm : Form
             source = _engine.Actions[index];
         }
 
-        using (var dlg = new EditActionForm(source))
+        using (var dlg = new EditActionForm(source, SnapshotActions()))
         {
             if (dlg.ShowDialog(this) != DialogResult.OK) return;
             lock (_engine.Sync)
@@ -529,6 +530,7 @@ sealed class MainForm : Form
         {
             if (index < 0 || index >= _engine.Actions.Count) return;
             var copy = JsonSerializer.Deserialize<MacroAction>(JsonSerializer.Serialize(_engine.Actions[index]));
+            copy.Id = Guid.NewGuid().ToString("N");   // 複製した項目は、別の結果として扱う
             _engine.Actions.Insert(index + 1, copy);
         }
         RefreshList();
