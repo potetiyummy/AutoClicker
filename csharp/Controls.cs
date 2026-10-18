@@ -200,6 +200,22 @@ sealed class MacroListPanel : Control
     const int Pad = 5;
     const int ItemHeight = 40;
 
+    const int IndentWidth = 20;
+
+    // 各項目の字下げの深さ（繰り返しの中は 1 つ深い）
+    static int[] DepthsOf(List<MacroAction> actions)
+    {
+        var depths = new int[actions.Count];
+        int current = 0;
+        for (int i = 0; i < actions.Count; i++)
+        {
+            if (actions[i].Type == "repeat_end" && current > 0) current--;
+            depths[i] = current;
+            if (actions[i].Type == "repeat") current++;
+        }
+        return depths;
+    }
+
     readonly MacroEngine _engine;
     readonly Dictionary<string, Image> _images;
     int _dragIndex = -1;
@@ -235,6 +251,7 @@ sealed class MacroListPanel : Control
 
         List<MacroAction> actions;
         lock (_engine.Sync) actions = new List<MacroAction>(_engine.Actions);
+        int[] depths = DepthsOf(actions);
 
         int y = 0;
         for (int i = 0; i < actions.Count; i++)
@@ -245,7 +262,7 @@ sealed class MacroListPanel : Control
                 DrawInsertionLines(g, y, w);
                 y += ItemHeight / 2;
             }
-            DrawItem(g, i, actions[i], y, w, false);
+            DrawItem(g, i, actions[i], depths[i], y, w, false);
             y += ItemHeight;
         }
 
@@ -253,7 +270,7 @@ sealed class MacroListPanel : Control
             DrawInsertionLines(g, y, w);
 
         if (_dragIndex >= 0 && _dragIndex < actions.Count)
-            DrawItem(g, _dragIndex, actions[_dragIndex], _dragY - ItemHeight / 2, w, true);
+            DrawItem(g, _dragIndex, actions[_dragIndex], depths[_dragIndex], _dragY - ItemHeight / 2, w, true);
     }
 
     static void DrawInsertionLines(Graphics g, int y, int width)
@@ -266,7 +283,7 @@ sealed class MacroListPanel : Control
         }
     }
 
-    void DrawItem(Graphics g, int index, MacroAction a, int y, int width, bool dragging)
+    void DrawItem(Graphics g, int index, MacroAction a, int depth, int y, int width, bool dragging)
     {
         string imgKey = null;
         string text = null;
@@ -294,13 +311,26 @@ sealed class MacroListPanel : Control
                 imgKey = a.Mode == "text" ? "text" : "hotkey";
                 text = Strings.T("list_keyboard", ("index", n), ("kind", Strings.T("keyboard")), ("mode", Strings.T(a.Mode)), ("value", a.Value ?? ""));
                 break;
+            case "repeat":
+                text = Strings.T("list_repeat", ("index", n), ("count", a.Count ?? 0));
+                break;
+            case "repeat_end":
+                text = Strings.T("list_repeat_end", ("index", n));
+                break;
             case "wait":
                 imgKey = "wait";
                 text = Strings.T("list_wait", ("index", n), ("kind", Strings.T("wait")), ("duration", a.Duration ?? 0));
                 break;
         }
 
-        var box = new RectangleF(5, y + 2, width - 10, ItemHeight - 4);
+        // 繰り返しの中身は、字下げして左に縦線を引き、どこからどこまでかを見せる
+        for (int l = 0; l < depth; l++)
+        {
+            int barX = 5 + l * IndentWidth + 8;
+            using (var bar = new Pen(Theme.Accent, 2))
+                g.DrawLine(bar, barX, y, barX, y + ItemHeight);
+        }
+        var box = new RectangleF(5 + depth * IndentWidth, y + 2, width - 10 - depth * IndentWidth, ItemHeight - 4);
         using (var fill = new SolidBrush(dragging ? Theme.ItemDragging : Theme.Item))
         using (var path = Shape.Path(box, (ItemHeight - 4) / 2f))
         using (var pen = new Pen(dragging ? Theme.Accent : Theme.Border))
@@ -309,11 +339,11 @@ sealed class MacroListPanel : Control
             g.DrawPath(pen, path);
         }
 
-        int textX = 15;
+        int textX = 15 + depth * IndentWidth;
         if (imgKey != null && _images.TryGetValue(imgKey, out Image img))
         {
-            g.DrawImage(img, 25 - img.Width / 2, y + ItemHeight / 2 - img.Height / 2, img.Width, img.Height);
-            textX = 45;
+            g.DrawImage(img, 25 + depth * IndentWidth - img.Width / 2, y + ItemHeight / 2 - img.Height / 2, img.Width, img.Height);
+            textX = 45 + depth * IndentWidth;
         }
 
         using (var font = Theme.Ui(12))

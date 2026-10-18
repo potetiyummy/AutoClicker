@@ -14,9 +14,9 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.11";
+    const string Version = "1.12";
 
-    static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait" };
+    static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
     static readonly string[] DragButtons = { "left_drag", "right_drag" };
     static readonly string[] HoldButtons = { "left_hold", "right_hold" };
@@ -57,6 +57,9 @@ sealed class MainForm : Form
     Button _cPick, _cSmart, _dPick, _hPick, _hwPick;
     bool _smartPickWaiting;   // 座標スマート取得の待機中（F9 で取得する）
     int _repeatCount;         // 繰り返し回数（0 は無限）
+    NumericUpDown _repeatBlockBox;   // 「○回繰り返す」の回数
+    ComboBox _otherType;             // その他：繰り返し / 繰り返しの終了
+    Label _repeatPropLabel;
 
     public MainForm()
     {
@@ -140,6 +143,7 @@ sealed class MainForm : Form
         BuildHoldPage(_pages["hold"]);
         BuildKeyboardPage(_pages["keyboard"]);
         BuildWaitPage(_pages["wait"]);
+        BuildOtherPage(_pages["other"]);
 
         _runBtn = Ui.Button(Strings.T("run"), 14, true, null, 380, 40);
         _runBtn.Click += (s, e) => _engine.Toggle(this);
@@ -335,6 +339,58 @@ sealed class MainForm : Form
         y = Ui.Row(p, y, 4, guide);
         Ui.Single(p, y + 6, 0, add);
         OnKeyboardModeChanged();
+    }
+
+    // その他タブ：ドロップダウンで「繰り返し」か「繰り返しの終了」を選び、その種類の項目だけを出して追加する
+    void BuildOtherPage(Panel p)
+    {
+        _otherType = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            FlatStyle = FlatStyle.Flat,
+            BackColor = Theme.Entry,
+            ForeColor = Theme.Text,
+            Font = Theme.Ui(12),
+            Width = 200,
+        };
+        _otherType.Items.Add(Strings.T("repeat"));
+        _otherType.Items.Add(Strings.T("repeat_end"));
+        _otherType.SelectedIndex = 0;
+
+        _repeatPropLabel = Ui.Label(Strings.T("repeat_count_label"), 12);
+        _repeatBlockBox = new NumericUpDown
+        {
+            Minimum = 1,
+            Maximum = 9999,
+            Value = 2,
+            BackColor = Theme.Entry,
+            ForeColor = Theme.Text,
+            Font = Theme.Ui(13),
+            Width = 100,
+        };
+        var add = Ui.Button(Strings.T("repeat_add"), 13, true, null, 200, 28);
+        add.Click += (s, e) =>
+        {
+            if (_otherType.SelectedIndex == 0)
+                AddAction(new MacroAction { Type = "repeat", Count = (int)_repeatBlockBox.Value });
+            else
+                AddAction(new MacroAction { Type = "repeat_end" });
+        };
+
+        // 種類によって、プロパティの欄を出し分ける（終了にはプロパティがない）
+        _otherType.SelectedIndexChanged += (s, e) => ShowOtherProperties();
+
+        int y = Ui.Row(p, 20, 16, _otherType);
+        y = Ui.Row(p, y, 16, _repeatPropLabel, _repeatBlockBox);
+        Ui.Single(p, y + 6, 0, add);
+        ShowOtherProperties();
+    }
+
+    void ShowOtherProperties()
+    {
+        bool repeat = _otherType.SelectedIndex == 0;
+        _repeatPropLabel.Visible = repeat;
+        _repeatBlockBox.Visible = repeat;
     }
 
     void BuildWaitPage(Panel p)

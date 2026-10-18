@@ -136,17 +136,8 @@ sealed class MacroEngine
             MacroAction[] snapshot;
             lock (Sync) snapshot = Actions.ToArray();
 
-            bool finished = true;
-            foreach (var act in snapshot)
-            {
-                if (!_active)
-                {
-                    finished = false;
-                    break;
-                }
-                Run(act);
-                Wait(100);
-            }
+            bool finished = RunRange(snapshot, 0, snapshot.Length);
+
 
             // 1周が終わったら回数を数え、指定の回数に達したら止める（0 は無限）
             if (finished && _active && RepeatCount > 0 && ++_cycles >= RepeatCount)
@@ -155,6 +146,49 @@ sealed class MacroEngine
                 UiHost?.BeginInvoke(new Action(() => StateChanged?.Invoke(false)));
             }
         }
+    }
+
+    // list の [from, to) を順に実行する。繰り返しのブロックは、指定の回数だけ中身を実行する。
+    // 止められたら false を返す
+    bool RunRange(MacroAction[] list, int from, int to)
+    {
+        for (int i = from; i < to; i++)
+        {
+            if (!_active) return false;
+
+            var act = list[i];
+            if (act.Type == "repeat")
+            {
+                int end = FindRepeatEnd(list, i, to);
+                for (int r = 0; r < (act.Count ?? 0); r++)
+                {
+                    if (!RunRange(list, i + 1, end)) return false;
+                }
+                i = end;   // 繰り返しの終了の位置。次のループで、その次から続ける
+                continue;
+            }
+            if (act.Type == "repeat_end") continue;
+
+            Run(act);
+            Wait(100);
+        }
+        return true;
+    }
+
+    // 対応する「繰り返しの終了」の位置を探す（入れ子に対応）。なければ範囲の最後
+    static int FindRepeatEnd(MacroAction[] list, int start, int to)
+    {
+        int depth = 0;
+        for (int j = start + 1; j < to; j++)
+        {
+            if (list[j].Type == "repeat") depth++;
+            else if (list[j].Type == "repeat_end")
+            {
+                if (depth == 0) return j;
+                depth--;
+            }
+        }
+        return to;
     }
 
     void Run(MacroAction act)

@@ -55,6 +55,11 @@ sealed class EditActionForm : Form
                 _mode = AddChoice("keyboard", KeyboardModes, source.Mode);
                 _value = AddText(Strings.T("edit_value"), source.Value ?? "");
                 break;
+            case "repeat":
+                AddField(Strings.T("repeat_count"), "count", source.Count);
+                break;
+            case "repeat_end":
+                break;
             case "wait":
                 AddField(Strings.T("ms"), "duration", source.Duration);
                 break;
@@ -137,6 +142,7 @@ sealed class EditActionForm : Form
         if (!ReadInt("ex", out int? ex)) return false;
         if (!ReadInt("ey", out int? ey)) return false;
         if (!ReadInt("duration", out int? duration)) return false;
+        if (!ReadInt("count", out int? count)) return false;
 
         a.X = x;
         a.Y = y;
@@ -145,6 +151,7 @@ sealed class EditActionForm : Form
         a.Ex = ex;
         a.Ey = ey;
         a.Duration = duration;
+        a.Count = count;
         Result = a;
         return true;
     }
@@ -177,6 +184,7 @@ sealed class EditActionForm : Form
         Ex = s.Ex,
         Ey = s.Ey,
         Duration = s.Duration,
+        Count = s.Count,
         Waypoints = s.Waypoints == null ? null : new List<int[]>(s.Waypoints),
     };
 }

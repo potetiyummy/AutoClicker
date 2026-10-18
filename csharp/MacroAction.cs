@@ -16,4 +16,5 @@ class MacroAction
     [JsonPropertyName("ey")] public int? Ey { get; set; }
     [JsonPropertyName("duration")] public int? Duration { get; set; }
     [JsonPropertyName("waypoints")] public List<int[]> Waypoints { get; set; }
+    [JsonPropertyName("count")] public int? Count { get; set; }          // 繰り返し（repeat）の回数
 }
