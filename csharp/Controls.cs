@@ -229,6 +229,8 @@ sealed class MacroListPanel : Control
         BackColor = Theme.Frame;
         SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         Shape.Round(this, 12);
+        SetStyle(ControlStyles.Selectable, true);
+        MouseEnter += (s, e) => Focus();
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -245,8 +247,9 @@ sealed class MacroListPanel : Control
         }
 
         int w = Width - Pad * 2;
-        g.TranslateTransform(Pad, Pad);
-        g.SetClip(new Rectangle(0, 0, w, Height - Pad * 2));
+        ClampTop();
+        g.TranslateTransform(Pad, Pad - _top);
+        g.SetClip(new Rectangle(0, _top, w, VisibleHeight));
         g.SmoothingMode = SmoothingMode.AntiAlias;
 
         List<MacroAction> actions;
@@ -271,6 +274,8 @@ sealed class MacroListPanel : Control
 
         if (_dragIndex >= 0 && _dragIndex < actions.Count)
             DrawItem(g, _dragIndex, actions[_dragIndex], depths[_dragIndex], _dragY - ItemHeight / 2, w, true);
+        g.ResetTransform();
+        DrawScrollBar(g);
     }
 
     static void DrawInsertionLines(Graphics g, int y, int width)
@@ -359,9 +364,50 @@ sealed class MacroListPanel : Control
     public event Action<int> DuplicateRequested;
     public event Action<int> DeleteRequested;
 
+
+    int _top;   // 縦スクロールの位置（px）
+
+    int ContentHeight()
+    {
+        int count;
+        lock (_engine.Sync) count = _engine.Actions.Count;
+        return count * ItemHeight + ItemHeight / 2;
+    }
+
+    int VisibleHeight => Height - Pad * 2;
+
+    void ClampTop()
+    {
+        _top = Math.Max(0, Math.Min(_top, ContentHeight() - VisibleHeight));
+    }
+
+    void ScrollBy(int delta)
+    {
+        _top += delta;
+        ClampTop();
+        Invalidate();
+    }
+
+    protected override void OnMouseWheel(MouseEventArgs e)
+    {
+        base.OnMouseWheel(e);
+        ScrollBy(-(e.Delta / 120) * ItemHeight);
+    }
+
+    // 右端のスクロールバー（項目が収まらないときだけ出す）
+    void DrawScrollBar(Graphics g)
+    {
+        int content = ContentHeight(), visible = VisibleHeight;
+        if (content <= visible) return;
+        int thumbH = Math.Max(24, visible * visible / content);
+        int thumbY = Pad + (int)((visible - thumbH) * (_top / (double)(content - visible)));
+        using (var brush = new SolidBrush(Theme.Border))
+            g.FillRectangle(brush, Width - 9, thumbY, 4, thumbH);
+    }
+
     int ItemAt(Point p)
     {
-        int index = IndexAt(p.Y - Pad);
+        int index = IndexAt(p.Y - Pad + _top);
         int count;
         lock (_engine.Sync) count = _engine.Actions.Count;
         return index >= 0 && index < count ? index : -1;
@@ -394,7 +440,7 @@ sealed class MacroListPanel : Control
         base.OnMouseDown(e);
         if (e.Button == MouseButtons.Right) { ShowMenu(e.Location); return; }
         if (e.Button != MouseButtons.Left) return;
-        int y = e.Y - Pad;
+        int y = e.Y - Pad + _top;
         int index = IndexAt(y);
         int count;
         lock (_engine.Sync) count = _engine.Actions.Count;
@@ -412,7 +458,9 @@ sealed class MacroListPanel : Control
         if (_dragIndex < 0) return;
         int count;
         lock (_engine.Sync) count = _engine.Actions.Count;
-        int y = Math.Max(0, Math.Min(e.Y - Pad, count * ItemHeight));
+        if (e.Y < Pad) ScrollBy(-ItemHeight / 2);
+        else if (e.Y > Height - Pad) ScrollBy(ItemHeight / 2);
+        int y = Math.Max(0, Math.Min(e.Y - Pad + _top, count * ItemHeight));
         int raw = (y + ItemHeight / 2) / ItemHeight;
         _insertIndex = Math.Max(0, Math.Min(raw, count));
         _dragY = y;
