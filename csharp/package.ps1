@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.15.2"
+    [string]$Version = "1.15.3"
 )
 
 # 配布用の zip を作る（32 ビットと 64 ビット）

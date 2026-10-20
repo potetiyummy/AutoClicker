@@ -200,6 +200,10 @@ sealed class ActionFields
             case "wait":
                 if (!TryParseMs(_pNum.Text, out _)) return Strings.T("need_ms");
                 return null;
+            case "key_hold":
+                if (!ValidKeyInput(KeyboardModeKeys[_kbMode.SelectedIndex], _pValue.Text)) return Strings.T("invalid_key");
+                if (!TryParseMs(_pNum.Text, out int keyHoldMs) || keyHoldMs <= 0) return Strings.T("need_ms");
+                return null;
             default:
                 return null;
         }
@@ -266,6 +270,7 @@ sealed class ActionFields
             case "getvar": return Strings.T("getvar");
             case "cond": return Strings.T("cond");
             case "move": return Strings.T("move");
+            case "key_hold": return Strings.T("key_hold");
             default: return type;
         }
     }
@@ -363,10 +368,23 @@ sealed class ActionFields
                 _kbMode = AddOptions(Strings.T("field_keymode"), KeyboardModeKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(KeyboardModeKeys, source?.Mode), KeyboardModeKeys);
                 _pValue = AddText(Strings.T("field_value"), source?.Value ?? "Hello");
                 break;
+            case "key_hold":
+                _kbMode = AddOptions(Strings.T("field_keymode"), KeyboardModeKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(KeyboardModeKeys, source?.Mode), KeyboardModeKeys);
+                _pValue = AddText(Strings.T("field_value"), source?.Value ?? "a");
+                _pNum = AddText(Strings.T("field_duration"), (source?.Duration ?? 1000).ToString());
+                break;
             case "wait":
                 _pNum = AddText(Strings.T("field_duration"), (source?.Duration ?? 500).ToString());
                 break;
         }
+    }
+
+    // キー入力が使えるか。文字入力は1文字だけ、ホットキーは解釈できるものだけ
+    static bool ValidKeyInput(string mode, string value)
+    {
+        if (string.IsNullOrEmpty(value)) return false;
+        if (mode == "text" && value.Length != 1) return false;
+        return MacroEngine.TryParseHotkey(value, out _);
     }
 
     // 秒数の欄に入れる文字（ミリ秒を秒にする）
@@ -449,6 +467,11 @@ sealed class ActionFields
             case "keyboard":
                 a.Mode = KeyboardModeKeys[_kbMode.SelectedIndex];
                 a.Value = _pValue.Text;
+                break;
+            case "key_hold":
+                a.Mode = KeyboardModeKeys[_kbMode.SelectedIndex];
+                a.Value = _pValue.Text;
+                a.Duration = TryParseMs(_pNum.Text, out int keyHoldDur) ? keyHoldDur : 1000;
                 break;
             case "wait":
                 a.Duration = TryParseMs(_pNum.Text, out int waitMs) ? waitMs : 500;

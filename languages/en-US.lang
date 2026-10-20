@@ -194,3 +194,6 @@ need_drag_point=Add at least one via point. The last point is the end.
 need_ms=Please enter the duration in ms.
 drag_hint=Points are passed in the order added. The last point is the end. One point = straight drag.
 no_points=(No points yet)
+key_hold=Key hold
+list_key_hold={index}. [Key hold] {mode}: {value} ({duration}ms)
+invalid_key=Enter one character or a hotkey (e.g. ctrl+c).

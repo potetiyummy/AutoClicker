@@ -337,6 +337,10 @@ sealed class MacroListPanel : Control
                 imgKey = a.Mode == "text" ? "text" : "hotkey";
                 text = Strings.T("list_keyboard", ("index", n), ("kind", Strings.T("keyboard")), ("mode", Strings.T(a.Mode)), ("value", a.Value ?? ""));
                 break;
+            case "key_hold":
+                imgKey = a.Mode == "text" ? "text" : "hotkey";
+                text = Strings.T("list_key_hold", ("index", n), ("mode", Strings.T(a.Mode ?? "text")), ("value", a.Value ?? ""), ("duration", a.Duration ?? 0));
+                break;
             case "if":
                 text = Strings.T("list_if", ("index", n), ("left", Desc(a.A)), ("right", DescRight(a)), ("op", Strings.IfOpName(a.Op)), ("current", Desc(a.A)), ("n", DescRight(a)));
                 break;

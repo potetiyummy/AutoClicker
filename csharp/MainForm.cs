@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.15.2";
+    const string Version = "1.15.3";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -324,7 +324,7 @@ sealed class MainForm : Form
     }
 
     // その他タブ：項目の種類を選ぶと、その種類に必要な入力欄を出す。追加ボタンで項目を追加する
-    static readonly string[] OtherTypes = { "repeat", "if", "calc", "round", "convert", "input", "setvar", "addvar", "getvar", "cond", "move" };
+    static readonly string[] OtherTypes = { "repeat", "if", "calc", "round", "convert", "input", "setvar", "addvar", "getvar", "cond", "move", "key_hold" };
 
     void BuildOtherPage(Panel p)
     {

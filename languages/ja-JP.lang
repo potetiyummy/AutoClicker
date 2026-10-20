@@ -194,3 +194,6 @@ need_drag_point=経由地を1つ以上追加してください。最後の地点
 need_ms=時間（ミリ秒）を正しく入力してください。
 drag_hint=地点は追加した順に通ります。最後の地点が終点です（地点が1つだけなら直線ドラッグ）。
 no_points=（まだ地点がありません）
+key_hold=キーボード長押し
+list_key_hold={index}. [キーボード長押し] {mode}: {value}（{duration}ミリ秒）
+invalid_key=1文字、またはホットキー（例: ctrl+c）を入力してください。

@@ -547,6 +547,10 @@ sealed class MacroEngine
             case "wait":
                 Thread.Sleep(act.Duration ?? 0);
                 break;
+
+            case "key_hold":
+                HoldKey(act.Mode, act.Value ?? "", act.Duration ?? 0);
+                break;
         }
     }
 
@@ -642,7 +646,7 @@ sealed class MacroEngine
 
     // "{ctrl+c}" や "ctrl+c" のような文字列を仮想キーの列に変換する。
     // 解釈できないキーがあれば false を返す
-    static bool TryParseHotkey(string value, out List<ushort> keys)
+    internal static bool TryParseHotkey(string value, out List<ushort> keys)
     {
         keys = new List<ushort>();
         string hk = value.ToLowerInvariant().Trim();
@@ -670,6 +674,17 @@ sealed class MacroEngine
             }
         }
         return keys.Count > 0;
+    }
+
+    // キーを押し続けて、指定の時間（ミリ秒）のあと離す。文字入力は1文字だけ。解釈できないキーなら何もしない
+    static void HoldKey(string mode, string value, int duration)
+    {
+        if (mode == "text" && value.Length != 1) return;
+        if (!TryParseHotkey(value, out List<ushort> keys)) return;
+
+        foreach (ushort k in keys) SendKey(k, up: false);
+        Thread.Sleep(Math.Max(0, duration));
+        for (int i = keys.Count - 1; i >= 0; i--) SendKey(keys[i], up: true);
     }
 
     static void PressHotkey(string value)
