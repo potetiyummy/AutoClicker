@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.15.1";
+    const string Version = "1.15.2";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -33,7 +33,6 @@ sealed class MainForm : Form
     readonly MacroEngine _engine = new MacroEngine();
     readonly Dictionary<string, Image> _images;
     readonly List<int[]> _currentWaypoints = new List<int[]>();
-    readonly List<int[]> _holdWaypoints = new List<int[]>();
     int[] _dragStart = { 0, 0 };
     bool _keepAwakeOn;
 
@@ -48,12 +47,11 @@ sealed class MainForm : Form
     MacroListPanel _listPanel;
     MarqueeCheckBox _keepAwakeBox;
     TextBox _wayBox;
-    WaypointListPanel _holdList;
     Label _lblStart;
 
     SegmentedButton _cBtn, _dBtn, _dTarget, _hBtn, _kMode;
-    TextBox _cX, _cY, _dX, _dY, _dSec, _hX, _hY, _hDur, _hwX, _hwY, _kVal, _wDur;
-    Button _cPick, _cSmart, _dPick, _hPick, _hwPick;
+    TextBox _cX, _cY, _dX, _dY, _dSec, _hX, _hY, _hDur, _kVal, _wDur;
+    Button _cPick, _cSmart, _dPick, _hPick;
     bool _smartPickWaiting;   // 座標スマート取得の待機中（F9 で取得する）
     int _repeatCount;         // 繰り返し回数（0 は無限）
     ComboBox _otherType;             // その他：項目の種類
@@ -294,29 +292,12 @@ sealed class MainForm : Form
         _hPick = Ui.Button(Strings.T("pick"), 12, false, Theme.PickBtn, 150, 28);
         _hPick.Click += (s, e) => StartPick("hold");
 
-        _hwX = Ui.Entry(12, 60, Strings.T("via_x"));
-        _hwY = Ui.Entry(12, 60, "Y");
-        _hwPick = Ui.Button(Strings.T("pick_short"), 11, false, Theme.PickBtn, 84, 28);
-        _hwPick.Click += (s, e) => StartPick("hold_via");
-
-        var addWay = Ui.Button(Strings.T("add_waypoint"), 11, true, null, 0, 28);
-        addWay.Click += (s, e) => AddHoldWaypoint();
-        var clearWay = Ui.Button(Strings.T("clear_waypoints"), 11, false, Theme.ClearBtn, 70, 28);
-        clearWay.Click += (s, e) => { _holdWaypoints.Clear(); _holdList.Redraw(); };
-
-        var listTitle = Ui.Label(Strings.T("hold_list_title"), 11, false, Theme.Gray);
-        _holdList = new WaypointListPanel(_holdWaypoints, 72);
-
         var add = Ui.Button(Strings.T("add_hold"), 13, true, null, 200, 28);
         add.Click += (s, e) => AddHold();
 
         int y = Ui.Row(p, 4, 2, _hBtn);
         y = Ui.Row(p, y, 2, _hX, _hY, _hDur);
         y = Ui.Row(p, y, 2, _hPick);
-        y = Ui.Row(p, y, 2, _hwX, _hwY, _hwPick);
-        y = Ui.Row(p, y, 2, addWay, clearWay);
-        y = Ui.Row(p, y, 2, listTitle);
-        y = Ui.Row(p, y, 2, _holdList);
         Ui.Single(p, y + 2, 0, add);
     }
 
@@ -473,7 +454,6 @@ sealed class MainForm : Form
             Btn = _hBtn.Selected,
             X = x, Y = y,
             Duration = duration,
-            Waypoints = _holdWaypoints.Select(Copy).ToList(),
         });
     }
 
@@ -493,13 +473,6 @@ sealed class MainForm : Form
         if (!TryInt(_dX.Text, 0, out int x) || !TryInt(_dY.Text, 0, out int y)) return;
         _currentWaypoints.Add(new[] { x, y });
         UpdateWaypointDisplay();
-    }
-
-    void AddHoldWaypoint()
-    {
-        if (!TryInt(_hwX.Text, 0, out int x) || !TryInt(_hwY.Text, 0, out int y)) return;
-        _holdWaypoints.Add(new[] { x, y });
-        _holdList.Redraw();
     }
 
     void AddAction(MacroAction action)
@@ -613,8 +586,7 @@ sealed class MainForm : Form
         {
             case "click": return (_cPick, "pick");
             case "drag": return (_dPick, "pick_short");
-            case "hold": return (_hPick, "pick");
-            default: return (_hwPick, "pick_short");
+            default: return (_hPick, "pick");
         }
     }
 
@@ -683,9 +655,6 @@ sealed class MainForm : Form
                 break;
             case "hold":
                 SetText(_hX, x); SetText(_hY, y);
-                break;
-            case "hold_via":
-                SetText(_hwX, x); SetText(_hwY, y);
                 break;
             case "drag":
                 SetText(_dX, x); SetText(_dY, y);

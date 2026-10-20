@@ -132,7 +132,7 @@ sealed class ActionFields
     TextBox _save;
     TextBox _mStart, _mEnd, _mSec;
     ComboBox _btn, _kbMode;
-    TextBox _pPos, _pVia, _pNum, _pValue;
+    TextBox _pPos, _pNum, _pValue;
     List<Control> _bRow = new List<Control>();
 
     static readonly string[] ClickBtnKeys = { "left_click", "right_click" };
@@ -194,7 +194,7 @@ sealed class ActionFields
                 if (!TryParseSeconds(_mSec.Text, out _)) return Strings.T("need_seconds");
                 return null;
             case "hold":
-                if (!SinglePointRx.IsMatch(_pPos.Text) || !PointListRx.IsMatch(_pVia.Text)) return Strings.T("invalid_points");
+                if (!SinglePointRx.IsMatch(_pPos.Text)) return Strings.T("invalid_points");
                 if (!TryParseMs(_pNum.Text, out int holdMs) || holdMs <= 0) return Strings.T("need_ms");
                 return null;
             case "wait":
@@ -357,7 +357,6 @@ sealed class ActionFields
             case "hold":
                 _btn = AddOptions(Strings.T("field_btn"), HoldBtnKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(HoldBtnKeys, source?.Btn), HoldBtnKeys);
                 _pPos = AddText(Strings.T("field_pos"), PointText(source?.X, source?.Y));
-                _pVia = AddText(Strings.T("field_via"), PointListText(source?.Waypoints));
                 _pNum = AddText(Strings.T("field_duration"), (source?.Duration ?? 1000).ToString());
                 break;
             case "keyboard":
@@ -445,7 +444,6 @@ sealed class ActionFields
                 a.Btn = HoldBtnKeys[_btn.SelectedIndex];
                 var holdAt = ParsePoints(_pPos.Text).FirstOrDefault() ?? new[] { 0, 0 };
                 a.X = holdAt[0]; a.Y = holdAt[1];
-                a.Waypoints = ParsePoints(_pVia.Text);
                 a.Duration = TryParseMs(_pNum.Text, out int holdMs) ? holdMs : 1000;
                 break;
             case "keyboard":

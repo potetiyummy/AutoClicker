@@ -110,11 +110,6 @@ sealed class MacroEngine
                 if (act.Type == "click" || act.Type == "hold")
                 {
                     if (!IsValidCoordinate(act.X ?? 0, act.Y ?? 0)) return false;
-                    if (act.Type == "hold")
-                    {
-                        foreach (var wp in act.Waypoints ?? new List<int[]>())
-                            if (!IsValidCoordinate(wp[0], wp[1])) return false;
-                    }
                 }
                 else if (act.Type == "drag" || act.Type == "move")
                 {
@@ -533,15 +528,8 @@ sealed class MacroEngine
                 MoveTo(act.X ?? 0, act.Y ?? 0);
                 Wait(50);
                 Click(IsRight(act), down: true);
-                var start = Stopwatch.StartNew();
-                foreach (var wp in act.Waypoints ?? new List<int[]>())
-                {
-                    MoveTo(wp[0], wp[1]);
-                    Wait(100);
-                }
-                // 合計の長押し時間になるまで待ってから離す
-                int remaining = (act.Duration ?? 0) - (int)start.ElapsedMilliseconds;
-                if (remaining > 0) Thread.Sleep(remaining);
+                // 指定の時間だけ押し続けてから離す
+                Thread.Sleep(Math.Max(0, act.Duration ?? 0));
                 Click(IsRight(act), down: false);
                 break;
 

@@ -331,10 +331,7 @@ sealed class MacroListPanel : Control
                 break;
             case "hold":
                 imgKey = (a.Btn ?? "").Contains("right") ? "right" : "left";
-                int holdCount = a.Waypoints?.Count ?? 0;
-                text = holdCount > 0
-                    ? Strings.T("list_hold_via", ("index", n), ("btn", Strings.T(a.Btn)), ("x", a.X ?? 0), ("y", a.Y ?? 0), ("count", holdCount), ("duration", a.Duration ?? 0))
-                    : Strings.T("list_hold", ("index", n), ("btn", Strings.T(a.Btn)), ("x", a.X ?? 0), ("y", a.Y ?? 0), ("duration", a.Duration ?? 0));
+                text = Strings.T("list_hold", ("index", n), ("btn", Strings.T(a.Btn)), ("x", a.X ?? 0), ("y", a.Y ?? 0), ("duration", a.Duration ?? 0));
                 break;
             case "keyboard":
                 imgKey = a.Mode == "text" ? "text" : "hotkey";
