@@ -326,6 +326,9 @@ sealed class MacroListPanel : Control
                 imgKey = dragCount > 0 ? "drag_via" : "drag_straight";
                 text = Strings.T("list_drag", ("index", n), ("btn", Strings.T(a.Btn)), ("sx", a.Sx ?? 0), ("count", dragCount), ("ex", a.Ex ?? 0));
                 break;
+            case "move":
+                text = Strings.T("list_move", ("index", n), ("sx", a.Sx ?? 0), ("ex", a.Ex ?? 0), ("seconds", (a.Duration ?? 0) / 1000.0));
+                break;
             case "hold":
                 imgKey = (a.Btn ?? "").Contains("right") ? "right" : "left";
                 int holdCount = a.Waypoints?.Count ?? 0;

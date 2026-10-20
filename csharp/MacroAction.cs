@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 // 1つのアクション。.acf の JSON 形式と同じキー名を使う（旧版の .acf と互換）
+// drag / move は duration（ミリ秒）の時間をかけて経路（始点→経由→終点）を動く
 class MacroAction
 {
     public MacroAction()

@@ -14,7 +14,7 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.14.2";
+    const string Version = "1.15";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
@@ -53,7 +53,7 @@ sealed class MainForm : Form
     Label _lblStart, _lblEnd;
 
     SegmentedButton _cBtn, _dBtn, _dTarget, _hBtn, _kMode;
-    TextBox _cX, _cY, _dX, _dY, _hX, _hY, _hDur, _hwX, _hwY, _kVal, _wDur;
+    TextBox _cX, _cY, _dX, _dY, _dSec, _hX, _hY, _hDur, _hwX, _hwY, _kVal, _wDur;
     Button _cPick, _cSmart, _dPick, _hPick, _hwPick;
     bool _smartPickWaiting;   // 座標スマート取得の待機中（F9 で取得する）
     int _repeatCount;         // 繰り返し回数（0 は無限）
@@ -250,6 +250,7 @@ sealed class MainForm : Form
 
         _dX = Ui.Entry(12, 60, "X"); _dX.Text = "0";
         _dY = Ui.Entry(12, 60, "Y"); _dY.Text = "0";
+        _dSec = Ui.Entry(12, 80, Strings.T("sec")); _dSec.Text = "1";
 
         _lblStart = Ui.Label(Strings.T("start_label", ("x", _dragStart[0]), ("y", _dragStart[1])), 11, false, Theme.Gray);
         _lblEnd = Ui.Label(Strings.T("end_label", ("x", _dragEnd[0]), ("y", _dragEnd[1])), 11, false, Theme.Gray);
@@ -277,7 +278,7 @@ sealed class MainForm : Form
 
         int y = Ui.Row(p, 6, 4, _dBtn);
         y = Ui.Row(p, y, 4, _dTarget, _dPick);
-        y = Ui.Row(p, y, 4, _dX, _dY);
+        y = Ui.Row(p, y, 4, _dX, _dY, _dSec);
         y = Ui.Row(p, y, 4, _lblStart, _lblEnd);
         y = Ui.Row(p, y, 4, addWay, clearWay);
         y = Ui.Row(p, y, 4, _wayBox);
@@ -342,7 +343,7 @@ sealed class MainForm : Form
     }
 
     // その他タブ：項目の種類を選ぶと、その種類に必要な入力欄を出す。追加ボタンで項目を追加する
-    static readonly string[] OtherTypes = { "repeat", "if", "calc", "round", "convert", "input", "setvar", "addvar", "getvar", "cond" };
+    static readonly string[] OtherTypes = { "repeat", "if", "calc", "round", "convert", "input", "setvar", "addvar", "getvar", "cond", "move" };
 
     void BuildOtherPage(Panel p)
     {
@@ -382,6 +383,12 @@ sealed class MainForm : Form
     void AddOther()
     {
         string type = OtherTypes[_otherType.SelectedIndex];
+        string error = _otherFields.Check();
+        if (error != null)
+        {
+            Dialogs.Show(this, error, Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
         var action = _otherFields.Read(null);
         lock (_engine.Sync)
         {
@@ -429,6 +436,12 @@ sealed class MainForm : Form
 
     void AddDrag()
     {
+        // ドラッグは秒数が必須
+        if (!ActionFields.TryParseSeconds(_dSec.Text, out int duration))
+        {
+            Dialogs.Show(this, Strings.T("need_seconds"), Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
         AddAction(new MacroAction
         {
             Type = "drag",
@@ -436,6 +449,7 @@ sealed class MainForm : Form
             Sx = _dragStart[0], Sy = _dragStart[1],
             Ex = _dragEnd[0], Ey = _dragEnd[1],
             Waypoints = _currentWaypoints.Select(Copy).ToList(),
+            Duration = duration,
         });
     }
 

@@ -130,7 +130,44 @@ sealed class ActionFields
     CheckBox _multiline;
     NumericUpDown _count;
     TextBox _save;
+    TextBox _mStart, _mEnd, _mSec;
     List<Control> _bRow = new List<Control>();
+
+    // 座標は「x,y」の形。経路の経由点は空白で区切る
+    const string PointPattern = @"-?\d{1,6}\s*,\s*-?\d{1,6}";
+    static readonly System.Text.RegularExpressions.Regex PointRx = new System.Text.RegularExpressions.Regex(PointPattern);
+
+    // 秒数（小数可）をミリ秒にする。0 以下や数字でないときは false（秒数は必須）
+    public static bool TryParseSeconds(string text, out int ms)
+    {
+        ms = 0;
+        if (!double.TryParse((text ?? "").Trim(), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double sec)) return false;
+        if (sec <= 0 || sec > 86400) return false;
+        ms = (int)Math.Round(sec * 1000);
+        return ms > 0;
+    }
+
+    static List<int[]> ParsePoints(string text) =>
+        PointRx.Matches(text ?? "").Cast<System.Text.RegularExpressions.Match>()
+            .Select(m =>
+            {
+                var n = m.Value.Split(',');
+                return new[] { int.Parse(n[0].Trim()), int.Parse(n[1].Trim()) };
+            })
+            .ToList();
+
+    static string PointText(int? x, int? y) => $"{x ?? 0},{y ?? 0}";
+
+    // 入力内容の確認。問題がなければ null、あればその内容を返す（その他タブ・編集ウィンドウで使う）
+    public string Check()
+    {
+        if (_type != "move") return null;
+        var start = new System.Text.RegularExpressions.Regex(@"^\s*" + PointPattern + @"\s*$");
+        if (!start.IsMatch(_mStart.Text) || !start.IsMatch(_mEnd.Text))
+            return Strings.T("invalid_points");
+        if (!TryParseSeconds(_mSec.Text, out _)) return Strings.T("need_seconds");
+        return null;
+    }
 
     public ActionFields(Panel host, Func<List<ValueChoice>> choices, Func<List<string>> varNames)
     {
@@ -192,6 +229,7 @@ sealed class ActionFields
             case "addvar": return Strings.T("addvar");
             case "getvar": return Strings.T("getvar");
             case "cond": return Strings.T("cond");
+            case "move": return Strings.T("move");
             default: return type;
         }
     }
@@ -258,6 +296,11 @@ sealed class ActionFields
                 _name = AddNameBox(Strings.T("field_var"), source?.Var ?? "");
                 if (type != "getvar") _a = AddValue(Strings.T("field_value"), source?.A);
                 break;
+            case "move":
+                _mStart = AddText(Strings.T("field_start"), PointText(source?.Sx, source?.Sy));
+                _mEnd = AddText(Strings.T("field_end"), PointText(source?.Ex, source?.Ey));
+                _mSec = AddText(Strings.T("field_seconds"), ((source?.Duration ?? 1000) / 1000.0).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                break;
         }
     }
 
@@ -305,6 +348,13 @@ sealed class ActionFields
                 break;
             case "getvar":
                 a.Var = _name.Text.Trim();
+                break;
+            case "move":
+                var start = ParsePoints(_mStart.Text).FirstOrDefault() ?? new[] { 0, 0 };
+                var end = ParsePoints(_mEnd.Text).FirstOrDefault() ?? new[] { 0, 0 };
+                a.Sx = start[0]; a.Sy = start[1];
+                a.Ex = end[0]; a.Ey = end[1];
+                a.Duration = TryParseSeconds(_mSec.Text, out int ms) ? ms : 1000;
                 break;
         }
         return a;

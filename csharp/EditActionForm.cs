@@ -36,6 +36,12 @@ sealed class EditActionForm : Form
         ok.Location = new Point(150, bottom + 16);
         ok.Click += (s, e) =>
         {
+            string error = _fields.Check();
+            if (error != null)
+            {
+                Dialogs.Show(this, error, Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             Result = _fields.Read(_source);
             DialogResult = DialogResult.OK;
         };

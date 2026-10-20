@@ -116,7 +116,7 @@ sealed class MacroEngine
                             if (!IsValidCoordinate(wp[0], wp[1])) return false;
                     }
                 }
-                else if (act.Type == "drag")
+                else if (act.Type == "drag" || act.Type == "move")
                 {
                     if (!IsValidCoordinate(act.Sx ?? 0, act.Sy ?? 0)) return false;
                     if (!IsValidCoordinate(act.Ex ?? 0, act.Ey ?? 0)) return false;
@@ -519,14 +519,14 @@ sealed class MacroEngine
                 Wait(50);
                 Click(IsRight(act), down: true);
                 Wait(50);
-                foreach (var wp in act.Waypoints ?? new List<int[]>())
-                {
-                    MoveTo(wp[0], wp[1]);
-                    Wait(100);
-                }
-                MoveTo(act.Ex ?? 0, act.Ey ?? 0);
+                MovePath(act);
                 Wait(50);
                 Click(IsRight(act), down: false);
+                break;
+
+            // 移動：ドラッグと同じ経路を、ボタンを押さずに動く
+            case "move":
+                MovePath(act);
                 break;
 
             case "hold":
@@ -565,6 +565,54 @@ sealed class MacroEngine
     static bool IsRight(MacroAction act) => (act.Btn ?? "").Contains("right");
 
     static void MoveTo(int x, int y) => Native.SetCursorPos(x, y);
+
+    // 始点 → 経由点 → 終点 の順に、Duration（ミリ秒）をかけてカーソルを動かす。
+    // 0 のとき（旧版の .acf など）は、すぐに終点へ動く
+    static void MovePath(MacroAction act)
+    {
+        var points = new List<int[]> { new[] { act.Sx ?? 0, act.Sy ?? 0 } };
+        points.AddRange(act.Waypoints ?? new List<int[]>());
+        points.Add(new[] { act.Ex ?? 0, act.Ey ?? 0 });
+
+        double total = 0;
+        for (int i = 1; i < points.Count; i++) total += Distance(points[i - 1], points[i]);
+
+        int duration = Math.Max(0, act.Duration ?? 0);
+        int steps = Math.Max(1, duration / 10);
+        int delay = duration / steps;
+        for (int s = 1; s <= steps; s++)
+        {
+            int[] p = PointAt(points, total * s / steps);
+            MoveTo(p[0], p[1]);
+            if (s < steps && delay > 0) Thread.Sleep(delay);
+        }
+    }
+
+    static double Distance(int[] a, int[] b)
+    {
+        double dx = b[0] - a[0], dy = b[1] - a[1];
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    // 折れ線の上で、始点から distance（ピクセル）進んだ位置を返す
+    static int[] PointAt(List<int[]> points, double distance)
+    {
+        for (int i = 1; i < points.Count; i++)
+        {
+            double seg = Distance(points[i - 1], points[i]);
+            if (distance <= seg || i == points.Count - 1)
+            {
+                double t = seg <= 0 ? 1 : Math.Min(1, distance / seg);
+                return new[]
+                {
+                    (int)Math.Round(points[i - 1][0] + (points[i][0] - points[i - 1][0]) * t),
+                    (int)Math.Round(points[i - 1][1] + (points[i][1] - points[i - 1][1]) * t),
+                };
+            }
+            distance -= seg;
+        }
+        return points[points.Count - 1];
+    }
 
     static void Click(bool right, bool down)
     {
