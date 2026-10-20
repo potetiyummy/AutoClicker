@@ -182,3 +182,15 @@ field_start=Start (x,y)
 field_end=End (x,y)
 field_seconds=Seconds
 invalid_points=Enter coordinates as x,y.
+field_btn=Button
+field_pos=Position (x,y)
+field_points=Points (the last one is the end) (x,y x,y ...)
+field_via=Via points (x,y x,y ...)
+field_duration=Duration (ms)
+field_keymode=Input type
+target_start=Start
+target_via=Via
+need_drag_point=Add at least one via point. The last point is the end.
+need_ms=Please enter the duration in ms.
+drag_hint=Points are passed in the order added. The last point is the end. One point = straight drag.
+no_points=(No points yet)

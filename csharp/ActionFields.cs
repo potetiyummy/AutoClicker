@@ -131,11 +131,21 @@ sealed class ActionFields
     NumericUpDown _count;
     TextBox _save;
     TextBox _mStart, _mEnd, _mSec;
+    ComboBox _btn, _kbMode;
+    TextBox _pPos, _pVia, _pNum, _pValue;
     List<Control> _bRow = new List<Control>();
 
-    // 座標は「x,y」の形。経路の経由点は空白で区切る
+    static readonly string[] ClickBtnKeys = { "left_click", "right_click" };
+    static readonly string[] DragBtnKeys = { "left_drag", "right_drag" };
+    static readonly string[] HoldBtnKeys = { "left_hold", "right_hold" };
+    static readonly string[] KeyboardModeKeys = { "text", "hotkey" };
+
+    // 座標は「x,y」の形。経由地は空白で区切る
     const string PointPattern = @"-?\d{1,6}\s*,\s*-?\d{1,6}";
     static readonly System.Text.RegularExpressions.Regex PointRx = new System.Text.RegularExpressions.Regex(PointPattern);
+    static readonly System.Text.RegularExpressions.Regex SinglePointRx = new System.Text.RegularExpressions.Regex(@"^\s*" + PointPattern + @"\s*$");
+    static readonly System.Text.RegularExpressions.Regex PointListRx = new System.Text.RegularExpressions.Regex(@"^\s*(" + PointPattern + @"(\s+" + PointPattern + @")*)?\s*$");
+    static readonly System.Text.RegularExpressions.Regex NonEmptyPointListRx = new System.Text.RegularExpressions.Regex(@"^\s*" + PointPattern + @"(\s+" + PointPattern + @")*\s*$");
 
     // 秒数（小数可）をミリ秒にする。0 以下や数字でないときは false（秒数は必須）
     public static bool TryParseSeconds(string text, out int ms)
@@ -146,6 +156,10 @@ sealed class ActionFields
         ms = (int)Math.Round(sec * 1000);
         return ms > 0;
     }
+
+    // ミリ秒（整数）。負の数や数字でないときは false
+    static bool TryParseMs(string text, out int ms) =>
+        int.TryParse((text ?? "").Trim(), out ms) && ms >= 0;
 
     static List<int[]> ParsePoints(string text) =>
         PointRx.Matches(text ?? "").Cast<System.Text.RegularExpressions.Match>()
@@ -158,15 +172,37 @@ sealed class ActionFields
 
     static string PointText(int? x, int? y) => $"{x ?? 0},{y ?? 0}";
 
+    static string PointListText(List<int[]> points) =>
+        string.Join(" ", (points ?? new List<int[]>()).Select(p => $"{p[0]},{p[1]}"));
+
     // 入力内容の確認。問題がなければ null、あればその内容を返す（その他タブ・編集ウィンドウで使う）
     public string Check()
     {
-        if (_type != "move") return null;
-        var start = new System.Text.RegularExpressions.Regex(@"^\s*" + PointPattern + @"\s*$");
-        if (!start.IsMatch(_mStart.Text) || !start.IsMatch(_mEnd.Text))
-            return Strings.T("invalid_points");
-        if (!TryParseSeconds(_mSec.Text, out _)) return Strings.T("need_seconds");
-        return null;
+        switch (_type)
+        {
+            case "click":
+                if (!SinglePointRx.IsMatch(_pPos.Text)) return Strings.T("invalid_points");
+                return null;
+            case "drag":
+                if (!SinglePointRx.IsMatch(_mStart.Text) || !NonEmptyPointListRx.IsMatch(_mEnd.Text))
+                    return Strings.T("invalid_points");
+                if (!TryParseSeconds(_mSec.Text, out _)) return Strings.T("need_seconds");
+                return null;
+            case "move":
+                if (!SinglePointRx.IsMatch(_mStart.Text) || !SinglePointRx.IsMatch(_mEnd.Text))
+                    return Strings.T("invalid_points");
+                if (!TryParseSeconds(_mSec.Text, out _)) return Strings.T("need_seconds");
+                return null;
+            case "hold":
+                if (!SinglePointRx.IsMatch(_pPos.Text) || !PointListRx.IsMatch(_pVia.Text)) return Strings.T("invalid_points");
+                if (!TryParseMs(_pNum.Text, out int holdMs) || holdMs <= 0) return Strings.T("need_ms");
+                return null;
+            case "wait":
+                if (!TryParseMs(_pNum.Text, out _)) return Strings.T("need_ms");
+                return null;
+            default:
+                return null;
+        }
     }
 
     public ActionFields(Panel host, Func<List<ValueChoice>> choices, Func<List<string>> varNames)
@@ -299,10 +335,43 @@ sealed class ActionFields
             case "move":
                 _mStart = AddText(Strings.T("field_start"), PointText(source?.Sx, source?.Sy));
                 _mEnd = AddText(Strings.T("field_end"), PointText(source?.Ex, source?.Ey));
-                _mSec = AddText(Strings.T("field_seconds"), ((source?.Duration ?? 1000) / 1000.0).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                _mSec = AddText(Strings.T("field_seconds"), Seconds(source?.Duration));
+                break;
+            case "click":
+                _btn = AddOptions(Strings.T("field_btn"), ClickBtnKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(ClickBtnKeys, source?.Btn), ClickBtnKeys);
+                _pPos = AddText(Strings.T("field_pos"), PointText(source?.X, source?.Y));
+                break;
+            case "drag":
+                _btn = AddOptions(Strings.T("field_btn"), DragBtnKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(DragBtnKeys, source?.Btn), DragBtnKeys);
+                _mStart = AddText(Strings.T("field_start"), PointText(source?.Sx, source?.Sy));
+                // 経由地と終点：最後の地点が終点になる
+                var points = new List<int[]>();
+                if (source != null)
+                {
+                    points.AddRange(source.Waypoints ?? new List<int[]>());
+                    points.Add(new[] { source.Ex ?? 0, source.Ey ?? 0 });
+                }
+                _mEnd = AddText(Strings.T("field_points"), PointListText(points));
+                _mSec = AddText(Strings.T("field_seconds"), Seconds(source?.Duration));
+                break;
+            case "hold":
+                _btn = AddOptions(Strings.T("field_btn"), HoldBtnKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(HoldBtnKeys, source?.Btn), HoldBtnKeys);
+                _pPos = AddText(Strings.T("field_pos"), PointText(source?.X, source?.Y));
+                _pVia = AddText(Strings.T("field_via"), PointListText(source?.Waypoints));
+                _pNum = AddText(Strings.T("field_duration"), (source?.Duration ?? 1000).ToString());
+                break;
+            case "keyboard":
+                _kbMode = AddOptions(Strings.T("field_keymode"), KeyboardModeKeys.Select(k => Strings.T(k)).ToArray(), IndexOf(KeyboardModeKeys, source?.Mode), KeyboardModeKeys);
+                _pValue = AddText(Strings.T("field_value"), source?.Value ?? "Hello");
+                break;
+            case "wait":
+                _pNum = AddText(Strings.T("field_duration"), (source?.Duration ?? 500).ToString());
                 break;
         }
     }
+
+    // 秒数の欄に入れる文字（ミリ秒を秒にする）
+    static string Seconds(int? ms) => ((ms ?? 1000) / 1000.0).ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     // 入力内容を、アクションとして読み取る。Id は元の項目を引き継ぐ
     public MacroAction Read(MacroAction source)
@@ -355,6 +424,36 @@ sealed class ActionFields
                 a.Sx = start[0]; a.Sy = start[1];
                 a.Ex = end[0]; a.Ey = end[1];
                 a.Duration = TryParseSeconds(_mSec.Text, out int ms) ? ms : 1000;
+                break;
+            case "click":
+                a.Btn = ClickBtnKeys[_btn.SelectedIndex];
+                var clickAt = ParsePoints(_pPos.Text).FirstOrDefault() ?? new[] { 0, 0 };
+                a.X = clickAt[0]; a.Y = clickAt[1];
+                break;
+            case "drag":
+                a.Btn = DragBtnKeys[_btn.SelectedIndex];
+                var dragStart = ParsePoints(_mStart.Text).FirstOrDefault() ?? new[] { 0, 0 };
+                a.Sx = dragStart[0]; a.Sy = dragStart[1];
+                // 最後の地点が終点で、それより前の地点が経由地
+                var dragPoints = ParsePoints(_mEnd.Text);
+                var dragEnd = dragPoints.Count > 0 ? dragPoints[dragPoints.Count - 1] : dragStart;
+                a.Ex = dragEnd[0]; a.Ey = dragEnd[1];
+                a.Waypoints = dragPoints.Take(Math.Max(0, dragPoints.Count - 1)).ToList();
+                a.Duration = TryParseSeconds(_mSec.Text, out int dragMs) ? dragMs : 1000;
+                break;
+            case "hold":
+                a.Btn = HoldBtnKeys[_btn.SelectedIndex];
+                var holdAt = ParsePoints(_pPos.Text).FirstOrDefault() ?? new[] { 0, 0 };
+                a.X = holdAt[0]; a.Y = holdAt[1];
+                a.Waypoints = ParsePoints(_pVia.Text);
+                a.Duration = TryParseMs(_pNum.Text, out int holdMs) ? holdMs : 1000;
+                break;
+            case "keyboard":
+                a.Mode = KeyboardModeKeys[_kbMode.SelectedIndex];
+                a.Value = _pValue.Text;
+                break;
+            case "wait":
+                a.Duration = TryParseMs(_pNum.Text, out int waitMs) ? waitMs : 500;
                 break;
         }
         return a;

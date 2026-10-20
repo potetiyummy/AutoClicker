@@ -14,14 +14,14 @@ using System.Windows.Forms;
 // gui/gui_base.py・gui/tabs/*.py・gui/gui_event_handlers.py・gui/gui_io.py の移植
 sealed class MainForm : Form
 {
-    const string Version = "1.15";
+    const string Version = "1.15.1";
 
     static readonly string[] TabKeys = { "click", "drag", "hold", "keyboard", "wait", "other" };
     static readonly string[] ClickButtons = { "left_click", "right_click" };
     static readonly string[] DragButtons = { "left_drag", "right_drag" };
     static readonly string[] HoldButtons = { "left_hold", "right_hold" };
     static readonly string[] KeyboardModes = { "text", "hotkey" };
-    static readonly string[] DragTargets = { "start", "end", "via" };
+    static readonly string[] DragTargets = { "target_start", "target_via" };
 
     static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
     {
@@ -35,7 +35,6 @@ sealed class MainForm : Form
     readonly List<int[]> _currentWaypoints = new List<int[]>();
     readonly List<int[]> _holdWaypoints = new List<int[]>();
     int[] _dragStart = { 0, 0 };
-    int[] _dragEnd = { 100, 100 };
     bool _keepAwakeOn;
 
     IntPtr _hook = IntPtr.Zero;
@@ -50,7 +49,7 @@ sealed class MainForm : Form
     MarqueeCheckBox _keepAwakeBox;
     TextBox _wayBox;
     WaypointListPanel _holdList;
-    Label _lblStart, _lblEnd;
+    Label _lblStart;
 
     SegmentedButton _cBtn, _dBtn, _dTarget, _hBtn, _kMode;
     TextBox _cX, _cY, _dX, _dY, _dSec, _hX, _hY, _hDur, _hwX, _hwY, _kVal, _wDur;
@@ -244,7 +243,7 @@ sealed class MainForm : Form
     void BuildDragPage(Panel p)
     {
         _dBtn = new SegmentedButton(DragButtons, "left_drag", 12, 160);
-        _dTarget = new SegmentedButton(DragTargets, "start", 11, 216);
+        _dTarget = new SegmentedButton(DragTargets, "target_start", 11, 216);
         _dPick = Ui.Button(Strings.T("pick_short"), 11, false, Theme.PickBtn, 84, 28);
         _dPick.Click += (s, e) => StartPick("drag");
 
@@ -253,7 +252,7 @@ sealed class MainForm : Form
         _dSec = Ui.Entry(12, 80, Strings.T("sec")); _dSec.Text = "1";
 
         _lblStart = Ui.Label(Strings.T("start_label", ("x", _dragStart[0]), ("y", _dragStart[1])), 11, false, Theme.Gray);
-        _lblEnd = Ui.Label(Strings.T("end_label", ("x", _dragEnd[0]), ("y", _dragEnd[1])), 11, false, Theme.Gray);
+        var hint = Ui.Label(Strings.T("drag_hint"), 10, false, Theme.Gray);
 
         var addWay = Ui.Button(Strings.T("add_waypoint"), 11, true, null, 0, 28);
         addWay.Click += (s, e) => AddDragWaypoint();
@@ -279,7 +278,8 @@ sealed class MainForm : Form
         int y = Ui.Row(p, 6, 4, _dBtn);
         y = Ui.Row(p, y, 4, _dTarget, _dPick);
         y = Ui.Row(p, y, 4, _dX, _dY, _dSec);
-        y = Ui.Row(p, y, 4, _lblStart, _lblEnd);
+        y = Ui.Row(p, y, 4, _lblStart);
+        y = Ui.Row(p, y, 4, hint);
         y = Ui.Row(p, y, 4, addWay, clearWay);
         y = Ui.Row(p, y, 4, _wayBox);
         Ui.Single(p, y + 4, 0, add);
@@ -436,19 +436,29 @@ sealed class MainForm : Form
 
     void AddDrag()
     {
-        // ドラッグは秒数が必須
+        // ドラッグは秒数と、終点を含む地点（1つ以上）が必須
         if (!ActionFields.TryParseSeconds(_dSec.Text, out int duration))
         {
             Dialogs.Show(this, Strings.T("need_seconds"), Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
+        if (_currentWaypoints.Count == 0)
+        {
+            Dialogs.Show(this, Strings.T("need_drag_point"), Strings.T("error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // 最後の地点が終点。それより前の地点が経由地（1つだけなら直線ドラッグ）
+        var points = _currentWaypoints.Select(Copy).ToList();
+        var end = points[points.Count - 1];
+        points.RemoveAt(points.Count - 1);
         AddAction(new MacroAction
         {
             Type = "drag",
             Btn = _dBtn.Selected,
             Sx = _dragStart[0], Sy = _dragStart[1],
-            Ex = _dragEnd[0], Ey = _dragEnd[1],
-            Waypoints = _currentWaypoints.Select(Copy).ToList(),
+            Ex = end[0], Ey = end[1],
+            Waypoints = points,
             Duration = duration,
         });
     }
@@ -566,10 +576,12 @@ sealed class MainForm : Form
         if (_wayBox == null) return;
         if (_currentWaypoints.Count == 0)
         {
-            _wayBox.Text = Strings.T("no_waypoints");
+            _wayBox.Text = Strings.T("no_points");
             return;
         }
-        var path = _currentWaypoints.Select(wp => $"({wp[0]}, {wp[1]})");
+        // 始点から、追加した順に表示する。最後が終点
+        var path = new[] { $"({_dragStart[0]}, {_dragStart[1]})" }
+            .Concat(_currentWaypoints.Select(wp => $"({wp[0]}, {wp[1]})"));
         _wayBox.Text = Strings.T("waypoint_order", ("path", string.Join(" -> ", path)));
     }
 
@@ -677,16 +689,15 @@ sealed class MainForm : Form
                 break;
             case "drag":
                 SetText(_dX, x); SetText(_dY, y);
-                string mode = _dTarget.Selected;
-                if (mode == "start")
+                if (_dTarget.Selected == "target_start")
                 {
                     _dragStart = new[] { x, y };
                     _lblStart.Text = Strings.T("start_label", ("x", x), ("y", y));
                 }
-                else if (mode == "end")
+                else
                 {
-                    _dragEnd = new[] { x, y };
-                    _lblEnd.Text = Strings.T("end_label", ("x", x), ("y", y));
+                    _currentWaypoints.Add(new[] { x, y });
+                    UpdateWaypointDisplay();
                 }
                 break;
         }

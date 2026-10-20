@@ -313,6 +313,7 @@ static class Strings
 
     static string Lookup(Dictionary<string, string> table, string key)
     {
+        if (key == null) return "";
         if (table.TryGetValue(key, out var text) && !string.IsNullOrEmpty(text)) return text;
         if (_fallback.TryGetValue(key, out text) && !string.IsNullOrEmpty(text)) return text;
         return key;
